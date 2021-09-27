@@ -50,7 +50,7 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
-CAN_RxHeaderTypeDef rxHeader; 			//CAN Bus recieve header
+CAN_RxHeaderTypeDef rxHeader; 			//CAN Bus receive header
 uint8_t canRX[8] = {0,0,0,0,0,0,0,0};  	//CAN Bus Receive Buffer
 CAN_FilterTypeDef canfilter; 			//CAN Bus Filter
 
@@ -63,20 +63,24 @@ CAN_FilterTypeDef canfilter; 			//CAN Bus Filter
 // max		 -	Maximum value for graph
 // min		 - 	value for graph
 // val		 -  Received value
+// id		 - 	Corresponds to base + address for filter ID
 
 
 struct rxData{
-	int intVal, decVal, scale, decScale, max, min, val;
+	int intVal, decVal, scale, decScale, max, min, val, id;
 	int intMax, intMin, decMax, decMin, valMin, valMax;
+
 };
 
 struct minMaxData{
 	int  intMax, intMin, decMax, decMin, valMin, valMax;
+
 };
 
-//[int] [dec] [scale] [dec scale] [max] [min] [val]
-struct rxData afr = {0,0,1000,100,22,8,0};
-struct rxData rpm = {0,0,1,1,7000,50,0};
+//[int] [dec] [scale] [dec scale] [max] [min] [val] [ID]
+
+struct rxData afr = {0,0,1000,100,22,8,0,4};
+struct rxData rpm = {0,0,1,1,7000,50,0,1};
 struct rxData clt = {0,0,1,1,60,250,0};
 struct rxData iat = {0,0,1,1,60,250,0};
 struct rxData accel = {0,0,100,1,0,100,0};
@@ -95,8 +99,11 @@ int lastMs = 0;
 int btnDebounce = 250;
 int btnPress = 0;
 
+int debug = 0;
+int fastUpdateRate = 1;
+
 // Gauges, adjust current for starting
-int currentGauge = 0;
+int currentGauge = 1;
 int totalNumGauge = 4;
 
 //Test data
@@ -104,7 +111,8 @@ int b[] = {0,0,0,0,0,0,0};
 
 // CAN IDs for Filters
 const int filterID[] = {(512), (513), (514), (515), (516), (517)};
-int currentFilter = 4;
+int currentFilter = 0;
+int cycleFilter =0;
 
 int rxID;
 int msgRXstatus = 0;
@@ -138,6 +146,8 @@ static void MX_CAN_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan1){
 	// Receive CAN message interrupt
 	HAL_CAN_GetRxMessage(hcan1, CAN_RX_FIFO0, &rxHeader, canRX);
@@ -168,6 +178,12 @@ void canFilterInit(int hiID, int loID){
   	canfilter.FilterScale = CAN_FILTERSCALE_32BIT;
   	canfilter.FilterActivation = ENABLE;
   	canfilter.SlaveStartFilterBank = 1;
+  	HAL_CAN_ConfigFilter(&hcan,&canfilter);
+}
+
+void canFilterUpdate(int hiID, int loID) {
+  	canfilter.FilterIdHigh = hiID<<5;
+  	canfilter.FilterIdLow = loID<<5;
   	HAL_CAN_ConfigFilter(&hcan,&canfilter);
 }
 
@@ -240,116 +256,156 @@ void getData(){
 	}
 }
 
-void printText( char* text, int X, int Y){
+void printText( char* text, int X, int Y, int textSize){
 	// Set cursor and print 11x18 text
 	ssd1306_SetCursor(X, Y);
+	switch (textSize){
+
+	case 2:
 	ssd1306_WriteString(text, Font_11x18, White);
+	break;
 
-}
+	case 3:
+	ssd1306_WriteString(text, Font_16x26, White);
+	break;
 
-void printTextLarge( char* text, int X, int Y){
-	// Set cursor and print 16x26 text
-	ssd1306_SetCursor(X, Y);
-	ssd1306_WriteString(text, Font_11x18, White);
-
-}
-
-void printTextSmall( char* text, int X, int Y){
-	// Set cursor and print 7x10 text
-	ssd1306_SetCursor(X, Y);
+	default:
 	ssd1306_WriteString(text, Font_7x10, White);
+	break;
+	}
+
 
 }
 
-void printDataDigitalLarge(struct rxData * data, int X, int Y){
+void printDataDigital(struct rxData * data, int X, int Y, int textSize){
 	// Set cursor x/y location and print the selected data
 	// If decimal value is 0 it will not be printed
 	// This will print the maximum stored value
 	ssd1306_SetCursor(X, Y);
 	if (data->decVal > 0){
 		snprintf(buff, sizeof(buff), "%d.%d", data->intVal,data->decVal);
-		ssd1306_WriteString(buff, Font_16x26, White);
+		switch (textSize){
+
+			case 2:
+			ssd1306_WriteString(buff, Font_11x18, White);
+			break;
+
+			case 3:
+			ssd1306_WriteString(buff, Font_16x26, White);
+			break;
+
+			default:
+			ssd1306_WriteString(buff, Font_7x10, White);
+			break;
+			}
+
 	}
 
 	else {
 		snprintf(buff, sizeof(buff), "%d", data->intVal);
-		ssd1306_WriteString(buff, Font_16x26, White);
+		switch (textSize){
+
+			case 2:
+			ssd1306_WriteString(buff, Font_11x18, White);
+			break;
+
+			case 3:
+			ssd1306_WriteString(buff, Font_16x26, White);
+			break;
+
+			default:
+			ssd1306_WriteString(buff, Font_7x10, White);
+			break;
+			}
 	}
 
 }
 
-void printDataDigital(struct rxData * data, int X, int Y){
-	// Set cursor x/y location and print the selected data
-	// If decimal value is 0 it will not be printed
-	// This will print the maximum stored value
-	ssd1306_SetCursor(X, Y);
-	if (data->decVal > 0){
-		snprintf(buff, sizeof(buff), "%d.%d", data->intVal,data->decVal);
-		ssd1306_WriteString(buff, Font_11x18, White);
-	}
-
-	else {
-		snprintf(buff, sizeof(buff), "%d", data->intVal);
-		ssd1306_WriteString(buff, Font_11x18, White);
-	}
-
-}
-
-void printDataDigitalSmall(struct rxData * data, int X, int Y){
-	// Set cursor x/y location and print the selected data
-	// If decimal value is 0 it will not be printed
-	// This will print the current stored value
-	ssd1306_SetCursor(X, Y);
-	if (data->decVal > 0){
-		snprintf(buff, sizeof(buff), "%d.%d", data->intVal,data->decVal);
-		ssd1306_WriteString(buff, Font_7x10, White);
-	}
-
-	else {
-		snprintf(buff, sizeof(buff), "%d", data->intVal);
-		ssd1306_WriteString(buff, Font_7x10, White);
-	}
-
-}
-
-void printDataMin(struct rxData * data, int X, int Y){
+void printDataMin(struct rxData * data, int X, int Y, int textSize){
 	// Set cursor x/y location and print the selected data
 	// If decimal value is 0 it will not be printed
 	// This will print the minimum stored value
 	ssd1306_SetCursor(X, Y);
 	if (data->decMin > 0){
 		snprintf(buff, sizeof(buff), "%d.%d", data->intMin,data->decMin);
-		ssd1306_WriteString(buff, Font_7x10, White);
+
+		switch (textSize){
+
+					case 2:
+					ssd1306_WriteString(buff, Font_11x18, White);
+					break;
+
+					case 3:
+					ssd1306_WriteString(buff, Font_16x26, White);
+					break;
+
+					default:
+					ssd1306_WriteString(buff, Font_7x10, White);
+					break;
+					}
 	}
 
 	else {
 		snprintf(buff, sizeof(buff), "%d", data->intMin);
-		ssd1306_WriteString(buff, Font_7x10, White);
+		switch (textSize){
+
+					case 2:
+					ssd1306_WriteString(buff, Font_11x18, White);
+					break;
+
+					case 3:
+					ssd1306_WriteString(buff, Font_16x26, White);
+					break;
+
+					default:
+					ssd1306_WriteString(buff, Font_7x10, White);
+					break;
+					}
 	}
 
 }
 
-void printDataMax(struct rxData * data, int X, int Y){
+void printDataMax(struct rxData * data, int X, int Y, int textSize){
 	// Set cursor x/y location and print the selected data
 	// If decimal value is 0 it will not be printed
 	// This will print the maximum stored value
 	ssd1306_SetCursor(X, Y);
 	if (data->decMax > 0){
 		snprintf(buff, sizeof(buff), "%d.%d", data->intMax,data->decMax);
-		ssd1306_WriteString(buff, Font_7x10, White);
+		switch (textSize){
+
+					case 2:
+					ssd1306_WriteString(buff, Font_11x18, White);
+					break;
+
+					case 3:
+					ssd1306_WriteString(buff, Font_16x26, White);
+					break;
+
+					default:
+					ssd1306_WriteString(buff, Font_7x10, White);
+					break;
+					}
 	}
 
 	else {
 		snprintf(buff, sizeof(buff), "%d", data->intMax);
-		ssd1306_WriteString(buff, Font_7x10, White);
+		switch (textSize){
+
+					case 2:
+					ssd1306_WriteString(buff, Font_11x18, White);
+					break;
+
+					case 3:
+					ssd1306_WriteString(buff, Font_16x26, White);
+					break;
+
+					default:
+					ssd1306_WriteString(buff, Font_7x10, White);
+					break;
+					}
 	}
 
-}
-
-void printValueSmall(int data, int X, int Y){
-	ssd1306_SetCursor(X, Y);
-	snprintf(buff, sizeof(buff), "%d", data);
-			ssd1306_WriteString(buff, Font_7x10, White);
 }
 
 void printBarGraph(int X, int Y, int height, int width, int progress, int boarder){
@@ -452,13 +508,12 @@ void getMinMax(struct rxData *data){
 void printStartup(){
 
 	ssd1306_Fill(Black);
-	printText("CAN 500k",5,05);
-	printText("Base ID 512 ",5,25);
-	printText("Waiting ...",5,45);
+	printText("CAN 500k",5,05,1);
+	printText("Base ID 512 ",5,25,1);
+	printText("Waiting ...",5,45,1);
 	ssd1306_UpdateScreen();
 
 }
-
 
 void getPercentMinMax(int p, int *min, int *max){
 	// This stores the current minimum percent value and updates if necessary
@@ -480,8 +535,67 @@ void getPercentMinMax(int p, int *min, int *max){
 
 }
 
+void digitalGaugeBasic(struct rxData* data, char text[12])
+{
 
+	getIntValue(data);
+	getDecValue(data);
+	printText(text,5,2,2);
+	printDataDigital(data,5,30,2);
+	ssd1306_UpdateScreen();
 
+}
+
+void digitalGaugeBasicRotated(struct rxData* data, char text[12])
+{
+
+	getIntValue(data);
+	getDecValue(data);
+	printText(text,5,5,1);
+	printDataDigital(data,0,30,3);
+	ssd1306_UpdateScreen();
+
+}
+
+void digitalGaugeBar(struct rxData* data, char text[12])
+{
+	getIntValue(data);
+	getDecValue(data);
+	getMinMax(data);
+
+	p = getPercent(data);
+	getPercentMinMax(p,&pMin,&pMax);
+	printBarGraph(5,0,10,120,p,2);
+	printBarMinMax(5,0,20,120,pMin,pMax);
+
+	printText(text,2,45,0);
+	printDataMin(data,2,25,1);
+	printDataMax(data,2,35,1);
+
+	printDataDigital(&afr,40,30,2);
+	ssd1306_UpdateScreen();
+}
+
+void digitalGaugeBarRotated(struct rxData* data, char text[12])
+{
+	getIntValue(data);
+	getDecValue(data);
+	getMinMax(data);
+	p = getPercent(data);
+
+	getPercentMinMax(p,&pMin,&pMax);
+	printBarGraph(5,2,10,50,p,1);
+	printBarMinMax(5,2,20,50,pMin,pMax);
+
+	printText(text,2,25,0);
+	printText("Current",2,35,0);
+	printText("Min/Max",2,65,0);
+	printDataMin(data,2,100,2);
+	printDataMax(data,2,80,2);
+
+	printDataDigital(data,0,45,2);
+	ssd1306_UpdateScreen();
+}
 
 void updateGauge(int gaugePrint){
 
@@ -492,56 +606,24 @@ void updateGauge(int gaugePrint){
 	switch (gaugePrint){
 
 	case 0 : // Basic AFR
-		currentFilter = 4;
-		getIntValue(&afr);
-		getDecValue(&afr);
-		printText("AFR",5,2);
-		printDataDigitalLarge(&afr,5,30);
-		ssd1306_UpdateScreen();
+		currentFilter = afr.id;
+		digitalGaugeBasicRotated(&afr,"AFR");
 		break;
 
 	case 1 : // AFR with bar graph and min/max
-		currentFilter = 4;
-		getIntValue(&afr);
-		getDecValue(&afr);
-		getMinMax(&afr);
-		p = getPercent(&afr);
-		getPercentMinMax(p,&pMin,&pMax);
-		printBarGraph(5,0,10,120,p,2);
-		printBarMinMax(5,0,20,120,pMin,pMax);
-		printTextSmall("AFR",2,45);
-		printDataMin(&afr,2,25);
-		printDataMax(&afr,2,35);
-
-		printDataDigitalLarge(&afr,40,30);
-		ssd1306_UpdateScreen();
+		currentFilter = afr.id;
+		digitalGaugeBarRotated(&afr,"AFR");
 		break;
 
 
 	case 2 : // Basic RPM
-		currentFilter = 1;
-		getIntValue(&rpm);
-		getDecValue(&rpm);
-		printText("RPM",5,2);
-		printDataDigitalLarge(&rpm,5,30);
-		ssd1306_UpdateScreen();
+		currentFilter = rpm.id;
+		digitalGaugeBasicRotated(&rpm,"RPM");
 		break;
 
-	case 3 :
-		currentFilter = 1;
-		getIntValue(&rpm);
-		getDecValue(&rpm);
-		getMinMax(&rpm);
-		p = getPercent(&rpm);
-		getPercentMinMax(p,&pMin,&pMax);
-
-		printBarGraph(5,0,10,120,p,2);
-		printBarMinMax(5,0,20,120,pMin,pMax);
-		printTextSmall("RPM",2,45);
-		printDataMin(&rpm,2,25);
-		printDataMax(&rpm,2,35);
-		printDataDigitalLarge(&rpm,40,30);
-		ssd1306_UpdateScreen();
+	case 3 : // RPM Bar
+		currentFilter = rpm.id;
+		digitalGaugeBarRotated(&rpm,"RPM");
 		break;
 
 
@@ -574,7 +656,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+   HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -595,10 +677,11 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 	// Setup CAN
-	canFilterInit(filterID[currentFilter], filterID[currentFilter]);
+
+
 	HAL_CAN_Start(&hcan);
 	HAL_CAN_ActivateNotification(&hcan,CAN_IT_RX_FIFO0_MSG_PENDING);
-
+	canFilterInit(516, 512);
 	// Initialize Display and clear
 	ssd1306_Init();
 	printStartup();
@@ -607,6 +690,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
 
   while (1)
   {
@@ -618,9 +702,9 @@ int main(void)
 
 	 if (lastCanMessage > 0 && ((HAL_GetTick() - lastCanMessage) > canWaitTime)){
 		 	ssd1306_Fill(Black);
-		 	printTextLarge("Lost CAN",5,5);
-		 	printTextLarge("Connection",5,20);
-		 	printTextLarge("!!!!!!!",20,40);
+		 	printText("Lost CAN",5,5,2);
+		 	printText("Connection",5,20,2);
+		 	printText("!!!!!!!",20,40,2);
 		 	ssd1306_UpdateScreen();
 	 }
 
@@ -630,7 +714,18 @@ int main(void)
 		 msgRXstatus = 0;
 		 updateGauge(currentGauge);
 		 lastCanMessage = HAL_GetTick();
+
+		 if (fastUpdateRate == 0){
+			 cycleFilter++;
+			 cycleFilter++;
+			 if (cycleFilter > 5){
+				 cycleFilter = 0;
+			 	 }
+					 canFilterUpdate(filterID[cycleFilter+1], filterID[cycleFilter]);
+			}
 	 }
+
+
 
 	 // Cycle gauges if the button was pressed
 	 if (btnPress == 1){
@@ -646,13 +741,25 @@ int main(void)
 		 if (currentGauge > totalNumGauge){
 			 currentGauge = 0;
 		 }
+
 		 updateGauge(currentGauge);
-		 canFilterInit(filterID[currentFilter], filterID[currentFilter]);
+
+		 if (fastUpdateRate == 1){
+			 canFilterUpdate(filterID[currentFilter], filterID[currentFilter]);
+		 }
+
 	 }
 
-  }
+	 if (debug == 1){
+		 getData();
+		 msgRXstatus = 0;
+		 updateGauge(currentGauge);
+		 lastCanMessage = HAL_GetTick();
+	 }
+
+  }}
   /* USER CODE END 3 */
-}
+
 
 /**
   * @brief System Clock Configuration

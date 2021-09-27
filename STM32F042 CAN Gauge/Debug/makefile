@@ -61,8 +61,8 @@ all: main-build
 main-build: STM32F042\ CAN\ Gauge.elf secondary-outputs
 
 # Tool invocations
-STM32F042\ CAN\ Gauge.elf: $(OBJS) $(USER_OBJS) C:\Users\keith\Documents\GitHub\STM-CAN-Gauge\STM32F042\ CAN\ Gauge\STM32F042K6TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "STM32F042 CAN Gauge.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0 -T"C:\Users\keith\Documents\GitHub\STM-CAN-Gauge\STM32F042 CAN Gauge\STM32F042K6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32F042 CAN Gauge.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+STM32F042\ CAN\ Gauge.elf: $(OBJS) $(USER_OBJS) F:\STM32\ IDE\STM-CAN-Gauge\STM32F042\ CAN\ Gauge\STM32F042K6TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "STM32F042 CAN Gauge.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0 -T"F:\STM32 IDE\STM-CAN-Gauge\STM32F042 CAN Gauge\STM32F042K6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32F042 CAN Gauge.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>  // For memcpy
 
+
+
+
 #if defined(SSD1306_USE_I2C)
 
 void ssd1306_Reset(void) {
@@ -81,8 +84,12 @@ void ssd1306_Init(void) {
     ssd1306_SetDisplayOn(0); //display off
 
     ssd1306_WriteCommand(0x20); //Set Memory Addressing Mode
-    ssd1306_WriteCommand(0x10); // 00b,Horizontal Addressing Mode; 01b,Vertical Addressing Mode;
-                                // 10b,Page Addressing Mode (RESET); 11b,Invalid
+
+
+    ssd1306_WriteCommand(0x00b);	 // 00b,Horizontal Addressing Mode; 01b,Vertical Addressing Mode;
+        // 10b,Page Addressing Mode (RESET); 11b,Invalid
+
+
 
     ssd1306_WriteCommand(0xB0); //Set Page Start Address for Page Addressing Mode,0-7
 
@@ -182,6 +189,7 @@ void ssd1306_Fill(SSD1306_COLOR color) {
 }
 
 // Write the screenbuffer with changed to the screen
+
 void ssd1306_UpdateScreen(void) {
     // Write data to each page of RAM. Number of pages
     // depends on the screen height:
@@ -197,11 +205,13 @@ void ssd1306_UpdateScreen(void) {
     }
 }
 
-//    Draw one pixel in the screenbuffer
+//    Draw one pixel in the screen buffer
 //    X => X Coordinate
 //    Y => Y Coordinate
 //    color => Pixel color
-void ssd1306_DrawPixel(uint8_t x, uint8_t y, SSD1306_COLOR color) {
+
+#ifdef SSD1306_ROTATE_90
+void ssd1306_DrawPixel(uint8_t y, uint8_t x, SSD1306_COLOR color) {
     if(x >= SSD1306_WIDTH || y >= SSD1306_HEIGHT) {
         // Don't write outside the buffer
         return;
@@ -219,6 +229,26 @@ void ssd1306_DrawPixel(uint8_t x, uint8_t y, SSD1306_COLOR color) {
         SSD1306_Buffer[x + (y / 8) * SSD1306_WIDTH] &= ~(1 << (y % 8));
     }
 }
+#else
+void ssd1306_DrawPixel(uint8_t x, uint8_t y, SSD1306_COLOR color) {
+    if(x >= SSD1306_WIDTH || y >= SSD1306_HEIGHT) {
+        // Don't write outside the buffer
+        return;
+    }
+
+    // Check if pixel should be inverted
+    if(SSD1306.Inverted) {
+        color = (SSD1306_COLOR)!color;
+    }
+
+    // Draw in the right color
+    if(color == White) {
+        SSD1306_Buffer[x + (y / 8) * SSD1306_WIDTH] |= 1 << (y % 8);
+    } else {
+        SSD1306_Buffer[x + (y / 8) * SSD1306_WIDTH] &= ~(1 << (y % 8));
+    }
+}
+#endif
 
 // Draw 1 char to the screen buffer
 // ch       => char om weg te schrijven
@@ -258,7 +288,7 @@ char ssd1306_WriteChar(char ch, FontDef Font, SSD1306_COLOR color) {
     return ch;
 }
 
-// Write full string to screenbuffer
+// Write full string to screen buffer
 char ssd1306_WriteString(char* str, FontDef Font, SSD1306_COLOR color) {
     // Write until null-byte
     while (*str) {
@@ -317,6 +347,7 @@ void ssd1306_Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR 
   }
   return;
 }
+
 //Draw polyline
 void ssd1306_Polyline(const SSD1306_VERTEX *par_vertex, uint16_t par_size, SSD1306_COLOR color) {
   uint16_t i;
@@ -331,10 +362,12 @@ void ssd1306_Polyline(const SSD1306_VERTEX *par_vertex, uint16_t par_size, SSD13
   }
   return;
 }
+
 /*Convert Degrees to Radians*/
 static float ssd1306_DegToRad(float par_deg) {
     return par_deg * 3.14 / 180.0;
 }
+
 /*Normalize degree to [0;360]*/
 static uint16_t ssd1306_NormalizeTo0_360(uint16_t par_deg) {
   uint16_t loc_angle;
@@ -349,6 +382,7 @@ static uint16_t ssd1306_NormalizeTo0_360(uint16_t par_deg) {
   }
   return loc_angle;
 }
+
 /*DrawArc. Draw angle is beginning from 4 quart of trigonometric circle (3pi/2)
  * start_angle in degree
  * sweep in degree
