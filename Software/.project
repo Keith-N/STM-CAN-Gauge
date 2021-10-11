@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>STM32F042 CAN Gauge</name>
+	<name>CAN Gauge</name>
 	<comment></comment>
 	<projects>
 	</projects>
