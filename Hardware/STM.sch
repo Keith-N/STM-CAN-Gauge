@@ -4,7 +4,7 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 2 6
-Title "50mm CAN Gauge"
+Title "CAN Gauge"
 Date "2021-10-10"
 Rev "A"
 Comp ""
