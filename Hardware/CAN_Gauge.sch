@@ -6,7 +6,7 @@ encoding utf-8
 Sheet 1 6
 Title "CAN Gauge"
 Date "2021-10-10"
-Rev "A"
+Rev "B"
 Comp ""
 Comment1 ""
 Comment2 ""

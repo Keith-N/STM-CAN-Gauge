@@ -227,8 +227,6 @@ F 4 "DNP" V 8533 5270 50  0000 C CNN "Populate"
 	1    8420 5270
 	0    -1   -1   0   
 $EndComp
-NoConn ~ 2990 4860
-NoConn ~ 2990 4760
 NoConn ~ 2990 4460
 NoConn ~ 2990 4360
 Wire Wire Line
@@ -241,10 +239,6 @@ Wire Wire Line
 	4250 4360 4530 4360
 Wire Wire Line
 	4250 4260 4530 4260
-Wire Wire Line
-	3250 4860 2990 4860
-Wire Wire Line
-	3250 4760 2990 4760
 Wire Wire Line
 	3250 4360 2990 4360
 Wire Wire Line
@@ -604,6 +598,70 @@ F 3 "https://www.murata.com/products/productdata/8796743696414/QNFA9103.pdf" H 4
 F 4 "BLM15PE300SH1D" H 4000 3460 50  0001 C CNN "Part Number"
 F 5 "Murata Electronics" H 4000 3460 50  0001 C CNN "Manufacturer"
 	1    4000 3460
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2680 4760 3250 4760
+Wire Wire Line
+	2680 4860 3250 4860
+Text Label 2770 4760 0    50   ~ 0
+CONFIG_1
+Text Label 2770 4860 0    50   ~ 0
+CONFIG_2
+$Comp
+L Device:R_US R6
+U 1 1 616B061C
+P 1040 4810
+F 0 "R6" H 1108 4856 50  0000 L CNN
+F 1 "10" H 1108 4765 50  0000 L CNN
+F 2 "Resistor_SMD:R_0402_1005Metric" V 1080 4800 50  0001 C CNN
+F 3 "~" H 1040 4810 50  0001 C CNN
+	1    1040 4810
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_US R22
+U 1 1 616B28A7
+P 1340 4820
+F 0 "R22" H 1408 4866 50  0000 L CNN
+F 1 "10" H 1408 4775 50  0000 L CNN
+F 2 "Resistor_SMD:R_0402_1005Metric" V 1380 4810 50  0001 C CNN
+F 3 "~" H 1340 4820 50  0001 C CNN
+	1    1340 4820
+	1    0    0    -1  
+$EndComp
+Text Label 1040 4430 0    50   ~ 0
+CONFIG_1
+Text Label 1340 4540 0    50   ~ 0
+CONFIG_2
+Wire Wire Line
+	1340 4540 1340 4670
+Wire Wire Line
+	1040 4430 1040 4660
+Wire Wire Line
+	1040 4960 1040 5050
+Wire Wire Line
+	1340 4970 1340 5050
+$Comp
+L power:GND #PWR?
+U 1 1 616CEB78
+P 1340 5050
+F 0 "#PWR?" H 1340 4800 50  0001 C CNN
+F 1 "GND" H 1345 4877 50  0000 C CNN
+F 2 "" H 1340 5050 50  0001 C CNN
+F 3 "" H 1340 5050 50  0001 C CNN
+	1    1340 5050
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 616D0EB9
+P 1040 5050
+F 0 "#PWR?" H 1040 4800 50  0001 C CNN
+F 1 "GND" H 1045 4877 50  0000 C CNN
+F 2 "" H 1040 5050 50  0001 C CNN
+F 3 "" H 1040 5050 50  0001 C CNN
+	1    1040 5050
 	1    0    0    -1  
 $EndComp
 $EndSCHEMATC
