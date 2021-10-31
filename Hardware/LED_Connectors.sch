@@ -109,8 +109,10 @@ U 1 1 6160B1B8
 P 2860 7060
 F 0 "SW1" H 2860 7345 50  0000 C CNN
 F 1 "SW_Push" H 2860 7254 50  0000 C CNN
-F 2 "Button_Switch_SMD:SW_SPST_TL3305A" H 2860 7260 50  0001 C CNN
+F 2 "Button_Switch_SMD:SW_Push_1P1T_NO_6x6mm_H9.5mm" H 2860 7260 50  0001 C CNN
 F 3 "~" H 2860 7260 50  0001 C CNN
+F 4 "C480275" H 2860 7060 50  0001 C CNN "LCSC"
+F 5 "Top Actuated 50mA @ 12VDC Round Button 160gf SPST SMD Tactile Switches ROHS" H 2860 7060 50  0001 C CNN "Comments"
 	1    2860 7060
 	1    0    0    -1  
 $EndComp
@@ -172,17 +174,6 @@ Wire Wire Line
 	2650 4990 2800 4990
 Wire Wire Line
 	2050 4990 2350 4990
-$Comp
-L Device:R_US R16
-U 1 1 6186D969
-P 1900 4990
-F 0 "R16" V 1695 4990 50  0000 C CNN
-F 1 "100" V 1786 4990 50  0000 C CNN
-F 2 "Resistor_SMD:R_0402_1005Metric" V 1940 4980 50  0001 C CNN
-F 3 "~" H 1900 4990 50  0001 C CNN
-	1    1900 4990
-	0    1    1    0   
-$EndComp
 Wire Wire Line
 	1750 4990 1400 4990
 Wire Wire Line
@@ -316,6 +307,8 @@ F 0 "R3" V 2885 6520 50  0000 C CNN
 F 1 "10k" V 2976 6520 50  0000 C CNN
 F 2 "Resistor_SMD:R_0402_1005Metric" V 3130 6510 50  0001 C CNN
 F 3 "~" H 3090 6520 50  0001 C CNN
+F 4 "C60489" V 3090 6520 50  0001 C CNN "LCSC"
+F 5 "50V 10kΩ -55℃~+155℃ - ±5% - - - Thick Film Resistors 62.5mW ±100ppm/℃ 0402 Chip Resistor - Surface Mount ROHS" V 3090 6520 50  0001 C CNN "Comments"
 	1    3090 6520
 	0    1    1    0   
 $EndComp
@@ -662,4 +655,15 @@ Text Notes 8860 1910 0    50   ~ 0
 Main Connector\n
 Text Notes 1790 6120 0    50   ~ 0
 Push button\nAlso at main connector for external option\n
+$Comp
+L Device:R_US R16
+U 1 1 6186D969
+P 1900 4990
+F 0 "R16" V 1695 4990 50  0000 C CNN
+F 1 "100" V 1786 4990 50  0000 C CNN
+F 2 "Resistor_SMD:R_0402_1005Metric" V 1940 4980 50  0001 C CNN
+F 3 "~" H 1900 4990 50  0001 C CNN
+	1    1900 4990
+	0    1    1    0   
+$EndComp
 $EndSCHEMATC

@@ -6,7 +6,7 @@ encoding utf-8
 Sheet 6 6
 Title "CAN Gauge"
 Date "2021-10-10"
-Rev "A"
+Rev "B"
 Comp ""
 Comment1 ""
 Comment2 ""
@@ -114,6 +114,8 @@ F 0 "U2" H 5120 4250 50  0000 C CNN
 F 1 "SN65HVD230" H 5020 3550 50  0000 C CNN
 F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 5370 3450 50  0001 C CNN
 F 3 "http://www.ti.com/lit/ds/symlink/sn65hvd230.pdf" H 5270 4350 50  0001 C CNN
+F 4 "C12084" H 5370 3950 50  0001 C CNN "LCSC"
+F 5 "Transceiver 1/1 CAN 1Mbps SOIC-8_150mil CAN ICs ROHS" H 5370 3950 50  0001 C CNN "Comments"
 	1    5370 3950
 	1    0    0    -1  
 $EndComp
@@ -209,6 +211,8 @@ F 0 "R5" H 6838 4396 50  0000 L CNN
 F 1 "60" H 6838 4305 50  0000 L CNN
 F 2 "Resistor_SMD:R_0402_1005Metric" V 6810 4340 50  0001 C CNN
 F 3 "~" H 6770 4350 50  0001 C CNN
+F 4 "C60310" H 6770 4350 50  0001 C CNN "LCSC"
+F 5 "60.4Ω ±1% ±200ppm/℃ 1/16W 0402 Chip Resistor - Surface Mount ROHS" H 6770 4350 50  0001 C CNN "Comments"
 	1    6770 4350
 	1    0    0    -1  
 $EndComp
@@ -220,6 +224,8 @@ F 0 "R4" H 6838 3746 50  0000 L CNN
 F 1 "60" H 6838 3655 50  0000 L CNN
 F 2 "Resistor_SMD:R_0402_1005Metric" V 6810 3690 50  0001 C CNN
 F 3 "~" H 6770 3700 50  0001 C CNN
+F 4 "C60310" H 6770 3700 50  0001 C CNN "LCSC"
+F 5 "60.4Ω ±1% ±200ppm/℃ 1/16W 0402 Chip Resistor - Surface Mount ROHS" H 6770 3700 50  0001 C CNN "Field5"
 	1    6770 3700
 	1    0    0    -1  
 $EndComp
