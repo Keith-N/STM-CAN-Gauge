@@ -62,26 +62,11 @@ F 3 "~" H 7010 3410 50  0001 C CNN
 $EndComp
 Text Label 4960 3700 0    50   ~ 0
 RST
-$Comp
-L power:+3.3V #PWR0158
-U 1 1 61BD266D
-P 3760 4400
-F 0 "#PWR0158" H 3760 4250 50  0001 C CNN
-F 1 "+3.3V" H 3775 4573 50  0000 C CNN
-F 2 "" H 3760 4400 50  0001 C CNN
-F 3 "" H 3760 4400 50  0001 C CNN
-	1    3760 4400
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	5240 4800 5090 4800
-Wire Wire Line
-	5090 4800 5090 4700
 Connection ~ 5090 4700
 Wire Wire Line
 	5240 4700 5090 4700
-Wire Wire Line
-	5090 4700 5090 4600
 Wire Wire Line
 	5090 4600 5090 4500
 Connection ~ 5090 4600
@@ -92,7 +77,6 @@ Wire Wire Line
 Connection ~ 5090 4500
 Wire Wire Line
 	5090 4400 5090 4500
-Connection ~ 5090 4400
 Wire Wire Line
 	5240 4400 5090 4400
 Wire Wire Line
@@ -428,5 +412,28 @@ I2C1_SCL
 Text GLabel 4610 4200 0    50   Input ~ 0
 I2C1_SDA
 Wire Wire Line
-	3760 4400 5090 4400
+	5090 4700 5090 4800
+$Comp
+L Connector:TestPoint TP?
+U 1 1 61BB6AF7
+P 4320 4560
+AR Path="/615E5281/61BB6AF7" Ref="TP?"  Part="1" 
+AR Path="/615E7CAC/61BB6AF7" Ref="TP?"  Part="1" 
+AR Path="/615E795E/61BB6AF7" Ref="TP6"  Part="1" 
+F 0 "TP6" H 4378 4678 50  0000 L CNN
+F 1 "TestPoint" H 4378 4587 50  0000 L CNN
+F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 4520 4560 50  0001 C CNN
+F 3 "~" H 4520 4560 50  0001 C CNN
+	1    4320 4560
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4320 4560 4320 4640
+Wire Wire Line
+	4320 4640 5090 4640
+Wire Wire Line
+	5090 4600 5090 4640
+Connection ~ 5090 4640
+Wire Wire Line
+	5090 4640 5090 4700
 $EndSCHEMATC

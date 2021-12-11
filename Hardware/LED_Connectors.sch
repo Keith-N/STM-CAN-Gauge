@@ -16,22 +16,14 @@ $EndDescr
 $Comp
 L power:+3V3 #PWR0121
 U 1 1 613E42EE
-P 8480 4310
-F 0 "#PWR0121" H 8480 4160 50  0001 C CNN
-F 1 "+3V3" H 8495 4483 50  0000 C CNN
-F 2 "" H 8480 4310 50  0001 C CNN
-F 3 "" H 8480 4310 50  0001 C CNN
-	1    8480 4310
+P 8600 4280
+F 0 "#PWR0121" H 8600 4130 50  0001 C CNN
+F 1 "+3V3" H 8615 4453 50  0000 C CNN
+F 2 "" H 8600 4280 50  0001 C CNN
+F 3 "" H 8600 4280 50  0001 C CNN
+	1    8600 4280
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	8390 4520 8870 4520
-Wire Wire Line
-	9370 4520 9870 4520
-Wire Wire Line
-	9370 4420 9870 4420
-Wire Wire Line
-	8480 4310 8480 4420
 Wire Wire Line
 	9030 3070 9420 3070
 Text GLabel 8990 2870 0    50   Input ~ 0
@@ -68,8 +60,6 @@ Wire Wire Line
 	9420 2970 8990 2970
 Wire Wire Line
 	9420 2570 8980 2570
-Wire Wire Line
-	8480 4420 8870 4420
 $Comp
 L Mechanical:MountingHole H1
 U 1 1 615BC9A9
@@ -134,17 +124,6 @@ F 3 "" H 3230 7120 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Connector_Generic:Conn_02x03_Odd_Even J1
-U 1 1 61BC1314
-P 9070 4520
-F 0 "J1" H 9120 4837 50  0000 C CNN
-F 1 "Conn_02x03_Odd_Even" H 9120 4746 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical_SMD" H 9070 4520 50  0001 C CNN
-F 3 "~" H 9070 4520 50  0001 C CNN
-	1    9070 4520
-	1    0    0    -1  
-$EndComp
-$Comp
 L Mechanical:MountingHole H4
 U 1 1 61F3BE63
 P 9540 5730
@@ -158,18 +137,14 @@ $EndComp
 $Comp
 L power:GND #PWR0163
 U 1 1 61889F2B
-P 8720 4650
-F 0 "#PWR0163" H 8720 4400 50  0001 C CNN
-F 1 "GND" H 8725 4477 50  0000 C CNN
-F 2 "" H 8720 4650 50  0001 C CNN
-F 3 "" H 8720 4650 50  0001 C CNN
-	1    8720 4650
+P 8610 4710
+F 0 "#PWR0163" H 8610 4460 50  0001 C CNN
+F 1 "GND" H 8615 4537 50  0000 C CNN
+F 2 "" H 8610 4710 50  0001 C CNN
+F 3 "" H 8610 4710 50  0001 C CNN
+	1    8610 4710
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	8870 4620 8720 4620
-Wire Wire Line
-	8720 4620 8720 4650
 Wire Wire Line
 	2650 4990 2800 4990
 Wire Wire Line
@@ -617,11 +592,11 @@ F 3 "" H 9190 2260 50  0001 C CNN
 	1    9190 2260
 	1    0    0    -1  
 $EndComp
-Text GLabel 9870 4420 2    50   Input ~ 0
+Text GLabel 9540 4420 2    50   Input ~ 0
 SWDIO
-Text GLabel 9870 4520 2    50   Input ~ 0
+Text GLabel 9530 4530 2    50   Input ~ 0
 SWCLK
-Text GLabel 8390 4520 0    50   Input ~ 0
+Text GLabel 8730 4520 0    50   Input ~ 0
 NRST
 Wire Wire Line
 	2800 4990 2800 5190
@@ -665,5 +640,39 @@ F 2 "Resistor_SMD:R_0402_1005Metric" V 1940 4980 50  0001 C CNN
 F 3 "~" H 1900 4990 50  0001 C CNN
 	1    1900 4990
 	0    1    1    0   
+$EndComp
+Wire Wire Line
+	8600 4410 8870 4410
+Wire Wire Line
+	8870 4410 8870 4420
+Wire Wire Line
+	8600 4280 8600 4410
+Wire Wire Line
+	8730 4520 8870 4520
+Wire Wire Line
+	8610 4710 8610 4620
+Wire Wire Line
+	8610 4620 8870 4620
+Wire Wire Line
+	9370 4420 9540 4420
+Wire Wire Line
+	9530 4530 9370 4530
+Wire Wire Line
+	9370 4530 9370 4520
+NoConn ~ 9430 4630
+Wire Wire Line
+	9430 4630 9430 4620
+Wire Wire Line
+	9430 4620 9370 4620
+$Comp
+L Connector_Generic:Conn_02x03_Odd_Even J1
+U 1 1 61BC1314
+P 9070 4520
+F 0 "J1" H 9120 4837 50  0000 C CNN
+F 1 "Conn_02x03_Odd_Even" H 9120 4746 50  0000 C CNN
+F 2 "Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical" H 9070 4520 50  0001 C CNN
+F 3 "~" H 9070 4520 50  0001 C CNN
+	1    9070 4520
+	1    0    0    -1  
 $EndComp
 $EndSCHEMATC

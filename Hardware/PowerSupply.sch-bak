@@ -29,11 +29,11 @@ L Device:R_US R9
 U 1 1 614FE23B
 P 9460 4180
 F 0 "R9" H 9528 4226 50  0000 L CNN
-F 1 "10k" H 9528 4135 50  0000 L CNN
+F 1 "1k" H 9528 4135 50  0000 L CNN
 F 2 "Resistor_SMD:R_0402_1005Metric" V 9500 4170 50  0001 C CNN
 F 3 "~" H 9460 4180 50  0001 C CNN
-F 4 " C60489" H 9460 4180 50  0001 C CNN "LCSC"
-F 5 "50V 10kΩ -55℃~+155℃ - ±5% - - - Thick Film Resistors 62.5mW ±100ppm/℃ 0402 Chip Resistor - Surface Mount ROHS" H 9460 4180 50  0001 C CNN "Comments"
+F 4 "C11702" H 9460 4180 50  0001 C CNN "LCSC"
+F 5 "±1% 1/16W ±100ppm/℃ 1kΩ 0402 Chip Resistor - Surface Mount ROHS" H 9460 4180 50  0001 C CNN "Comments"
 	1    9460 4180
 	1    0    0    -1  
 $EndComp
@@ -363,4 +363,90 @@ F 5 "500mA 40V SOP-8 DC-DC Converters ROHS" H 5900 2690 50  0001 C CNN "Comments
 	1    5900 2690
 	1    0    0    -1  
 $EndComp
+$Comp
+L Connector:TestPoint TP?
+U 1 1 61B7485F
+P 2000 3540
+AR Path="/615E5281/61B7485F" Ref="TP?"  Part="1" 
+AR Path="/615E7CAC/61B7485F" Ref="TP3"  Part="1" 
+F 0 "TP3" H 2058 3658 50  0000 L CNN
+F 1 "TestPoint" H 2058 3567 50  0000 L CNN
+F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 2200 3540 50  0001 C CNN
+F 3 "~" H 2200 3540 50  0001 C CNN
+	1    2000 3540
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:TestPoint TP?
+U 1 1 61B74D64
+P 2030 4050
+AR Path="/615E5281/61B74D64" Ref="TP?"  Part="1" 
+AR Path="/615E7CAC/61B74D64" Ref="TP4"  Part="1" 
+F 0 "TP4" H 2088 4168 50  0000 L CNN
+F 1 "TestPoint" H 2088 4077 50  0000 L CNN
+F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 2088 4031 50  0001 L CNN
+F 3 "~" H 2230 4050 50  0001 C CNN
+	1    2030 4050
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:TestPoint TP?
+U 1 1 61B7528A
+P 2810 3460
+AR Path="/615E5281/61B7528A" Ref="TP?"  Part="1" 
+AR Path="/615E7CAC/61B7528A" Ref="TP5"  Part="1" 
+F 0 "TP5" H 2868 3578 50  0000 L CNN
+F 1 "TestPoint" H 2868 3487 50  0000 L CNN
+F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 3010 3460 50  0001 C CNN
+F 3 "~" H 3010 3460 50  0001 C CNN
+	1    2810 3460
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+12V #PWR0165
+U 1 1 61B75EAD
+P 1740 3540
+F 0 "#PWR0165" H 1740 3390 50  0001 C CNN
+F 1 "+12V" H 1755 3713 50  0000 C CNN
+F 2 "" H 1740 3540 50  0001 C CNN
+F 3 "" H 1740 3540 50  0001 C CNN
+	1    1740 3540
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR0166
+U 1 1 61B773FF
+P 1670 4070
+F 0 "#PWR0166" H 1670 3920 50  0001 C CNN
+F 1 "+3.3V" H 1685 4243 50  0000 C CNN
+F 2 "" H 1670 4070 50  0001 C CNN
+F 3 "" H 1670 4070 50  0001 C CNN
+	1    1670 4070
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0167
+U 1 1 61B77EDD
+P 2810 3690
+F 0 "#PWR0167" H 2810 3440 50  0001 C CNN
+F 1 "GND" H 2815 3517 50  0000 C CNN
+F 2 "" H 2810 3690 50  0001 C CNN
+F 3 "" H 2810 3690 50  0001 C CNN
+	1    2810 3690
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2810 3460 2810 3690
+Wire Wire Line
+	2030 4050 2030 4190
+Wire Wire Line
+	2030 4190 1670 4190
+Wire Wire Line
+	1670 4190 1670 4070
+Wire Wire Line
+	2000 3540 2000 3690
+Wire Wire Line
+	2000 3690 1740 3690
+Wire Wire Line
+	1740 3690 1740 3540
 $EndSCHEMATC
