@@ -6,7 +6,7 @@ encoding utf-8
 Sheet 5 6
 Title "CAN Gauge"
 Date "2021-10-10"
-Rev "B"
+Rev "C"
 Comp ""
 Comment1 ""
 Comment2 ""
@@ -121,17 +121,6 @@ F 1 "GND" H 3235 6947 50  0000 C CNN
 F 2 "" H 3230 7120 50  0001 C CNN
 F 3 "" H 3230 7120 50  0001 C CNN
 	1    3230 7120
-	1    0    0    -1  
-$EndComp
-$Comp
-L Connector_Generic:Conn_02x03_Odd_Even J1
-U 1 1 61BC1314
-P 9070 4520
-F 0 "J1" H 9120 4837 50  0000 C CNN
-F 1 "Conn_02x03_Odd_Even" H 9120 4746 50  0000 C CNN
-F 2 "Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical" H 9070 4520 50  0001 C CNN
-F 3 "~" H 9070 4520 50  0001 C CNN
-	1    9070 4520
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -646,7 +635,7 @@ L Device:R_US R16
 U 1 1 6186D969
 P 1900 4990
 F 0 "R16" V 1695 4990 50  0000 C CNN
-F 1 "100" V 1786 4990 50  0000 C CNN
+F 1 "1k" V 1786 4990 50  0000 C CNN
 F 2 "Resistor_SMD:R_0402_1005Metric" V 1940 4980 50  0001 C CNN
 F 3 "~" H 1900 4990 50  0001 C CNN
 	1    1900 4990
@@ -675,4 +664,15 @@ Wire Wire Line
 	9430 4630 9430 4620
 Wire Wire Line
 	9430 4620 9370 4620
+$Comp
+L Connector_Generic:Conn_02x03_Odd_Even J1
+U 1 1 61BC1314
+P 9070 4520
+F 0 "J1" H 9120 4837 50  0000 C CNN
+F 1 "Conn_02x03_Odd_Even" H 9120 4746 50  0000 C CNN
+F 2 "Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical" H 9070 4520 50  0001 C CNN
+F 3 "~" H 9070 4520 50  0001 C CNN
+	1    9070 4520
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC

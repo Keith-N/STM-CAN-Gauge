@@ -6,7 +6,7 @@ encoding utf-8
 Sheet 2 6
 Title "CAN Gauge"
 Date "2021-10-10"
-Rev "B"
+Rev "C"
 Comp ""
 Comment1 ""
 Comment2 ""
@@ -21,7 +21,7 @@ F 0 "R13" H 9232 4994 50  0000 R CNN
 F 1 "10k" H 9232 5085 50  0000 R CNN
 F 2 "Resistor_SMD:R_0402_1005Metric" V 9340 5030 50  0001 C CNN
 F 3 "~" H 9300 5040 50  0001 C CNN
-F 4 "DNP" H 9160 5170 50  0000 C CNN "Populate"
+F 4 "" H 9160 5170 50  0000 C CNN "Populate"
 	1    9300 5040
 	-1   0    0    1   
 $EndComp
@@ -52,7 +52,7 @@ F 0 "R10" V 8037 5370 50  0000 C CNN
 F 1 "10k" V 7946 5370 50  0000 C CNN
 F 2 "Resistor_SMD:R_0402_1005Metric" V 8190 5360 50  0001 C CNN
 F 3 "~" H 8150 5370 50  0001 C CNN
-F 4 "DNP" V 7855 5370 50  0000 C CNN "Populate"
+F 4 "" V 7855 5370 50  0000 C CNN "Populate"
 	1    8150 5370
 	0    -1   -1   0   
 $EndComp
@@ -185,7 +185,7 @@ F 0 "R14" H 9392 5614 50  0000 R CNN
 F 1 "10k" H 9392 5705 50  0000 R CNN
 F 2 "Resistor_SMD:R_0402_1005Metric" V 9500 5650 50  0001 C CNN
 F 3 "~" H 9460 5660 50  0001 C CNN
-F 4 "DNP" H 9320 5790 50  0000 C CNN "Populate"
+F 4 "" H 9320 5790 50  0000 C CNN "Populate"
 	1    9460 5660
 	-1   0    0    1   
 $EndComp
@@ -197,7 +197,7 @@ F 0 "R15" H 9842 5024 50  0000 R CNN
 F 1 "10k" H 9842 5115 50  0000 R CNN
 F 2 "Resistor_SMD:R_0402_1005Metric" V 9950 5060 50  0001 C CNN
 F 3 "~" H 9910 5070 50  0001 C CNN
-F 4 "DNP" H 9780 5200 50  0000 C CNN "Populate"
+F 4 "" H 9780 5200 50  0000 C CNN "Populate"
 	1    9910 5070
 	-1   0    0    1   
 $EndComp
@@ -209,7 +209,7 @@ F 0 "R12" H 9297 5614 50  0000 L CNN
 F 1 "10k" H 9297 5705 50  0000 L CNN
 F 2 "Resistor_SMD:R_0402_1005Metric" V 9270 5650 50  0001 C CNN
 F 3 "~" H 9230 5660 50  0001 C CNN
-F 4 "DNP" H 9370 5790 50  0000 C CNN "Populate"
+F 4 "" H 9370 5790 50  0000 C CNN "Populate"
 	1    9230 5660
 	-1   0    0    1   
 $EndComp
@@ -221,7 +221,7 @@ F 0 "R11" V 8715 5270 50  0000 C CNN
 F 1 "10k" V 8624 5270 50  0000 C CNN
 F 2 "Resistor_SMD:R_0402_1005Metric" V 8460 5260 50  0001 C CNN
 F 3 "~" H 8420 5270 50  0001 C CNN
-F 4 "DNP" V 8533 5270 50  0000 C CNN "Populate"
+F 4 "" V 8533 5270 50  0000 C CNN "Populate"
 	1    8420 5270
 	0    -1   -1   0   
 $EndComp

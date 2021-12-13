@@ -6,7 +6,7 @@ encoding utf-8
 Sheet 4 6
 Title "CAN Gauge"
 Date "2021-10-10"
-Rev "B"
+Rev "C"
 Comp ""
 Comment1 ""
 Comment2 ""
@@ -193,12 +193,12 @@ U 1 1 618C9F5C
 P 5110 2290
 F 0 "C10" H 5225 2336 50  0000 L CNN
 F 1 "10u" H 5225 2245 50  0000 L CNN
-F 2 "Inductor_SMD:L_0603_1608Metric" H 5148 2140 50  0001 C CNN
+F 2 "Inductor_SMD:L_1206_3216Metric" H 5148 2140 50  0001 C CNN
 F 3 "" H 5110 2290 50  0001 C CNN
 F 4 "50v" H 5300 2150 50  0000 C CNN "Voltage"
 F 5 "" H 5110 2290 50  0001 C CNN "Part Number"
 F 6 "" H 5110 2290 50  0001 C CNN "Manufactuer"
-F 7 " C13585" H 5110 2290 50  0001 C CNN "LCSC"
+F 7 "" H 5110 2290 50  0001 C CNN "LCSC"
 F 8 "X5R ±10% 50V 10uF 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS" H 5110 2290 50  0001 C CNN "Comment"
 	1    5110 2290
 	1    0    0    -1  
@@ -268,7 +268,7 @@ F 0 "L1" V 7580 2140 50  0000 C CNN
 F 1 "100uH" V 7489 2140 50  0000 C CNN
 F 2 "Inductor_SMD:L_0805_2012Metric" H 7390 2140 50  0001 C CNN
 F 3 "~" H 7390 2140 50  0001 C CNN
-F 4 " C68035 " V 7390 2140 50  0001 C CNN "LCSC"
+F 4 "C68035 " V 7390 2140 50  0001 C CNN "LCSC"
 F 5 "0805 Inductors (SMD) ROHS 100uH" V 7390 2140 50  0001 C CNN "Comments"
 	1    7390 2140
 	0    -1   -1   0   
@@ -436,7 +436,7 @@ F 3 "" H 2810 3690 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2810 3460 2810 3690
+	2810 3460 2810 3580
 Wire Wire Line
 	2030 4050 2030 4190
 Wire Wire Line
@@ -449,4 +449,42 @@ Wire Wire Line
 	2000 3690 1740 3690
 Wire Wire Line
 	1740 3690 1740 3540
+$Comp
+L Connector:TestPoint TP?
+U 1 1 61B79F3B
+P 2530 4060
+AR Path="/615E5281/61B79F3B" Ref="TP?"  Part="1" 
+AR Path="/615E7CAC/61B79F3B" Ref="TP7"  Part="1" 
+F 0 "TP7" H 2588 4178 50  0000 L CNN
+F 1 "TestPoint" H 2588 4087 50  0000 L CNN
+F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 2588 4041 50  0001 L CNN
+F 3 "~" H 2730 4060 50  0001 C CNN
+	1    2530 4060
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2530 4060 2530 4190
+Wire Wire Line
+	2530 4190 2030 4190
+Connection ~ 2030 4190
+$Comp
+L Connector:TestPoint TP?
+U 1 1 61B7B6C1
+P 3350 3460
+AR Path="/615E5281/61B7B6C1" Ref="TP?"  Part="1" 
+AR Path="/615E7CAC/61B7B6C1" Ref="TP8"  Part="1" 
+F 0 "TP8" H 3408 3578 50  0000 L CNN
+F 1 "TestPoint" H 3408 3487 50  0000 L CNN
+F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 3550 3460 50  0001 C CNN
+F 3 "~" H 3550 3460 50  0001 C CNN
+	1    3350 3460
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3350 3460 3350 3580
+Wire Wire Line
+	3350 3580 2810 3580
+Connection ~ 2810 3580
+Wire Wire Line
+	2810 3580 2810 3690
 $EndSCHEMATC

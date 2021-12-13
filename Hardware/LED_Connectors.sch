@@ -6,7 +6,7 @@ encoding utf-8
 Sheet 5 6
 Title "CAN Gauge"
 Date "2021-10-10"
-Rev "B"
+Rev "C"
 Comp ""
 Comment1 ""
 Comment2 ""
@@ -635,7 +635,7 @@ L Device:R_US R16
 U 1 1 6186D969
 P 1900 4990
 F 0 "R16" V 1695 4990 50  0000 C CNN
-F 1 "100" V 1786 4990 50  0000 C CNN
+F 1 "1k" V 1786 4990 50  0000 C CNN
 F 2 "Resistor_SMD:R_0402_1005Metric" V 1940 4980 50  0001 C CNN
 F 3 "~" H 1900 4990 50  0001 C CNN
 	1    1900 4990
