@@ -14,6 +14,7 @@
   * License. You may obtain a copy of the License at:
   *                        opensource.org/licenses/BSD-3-Clause
   *
+  *
   ******************************************************************************
   */
 /* USER CODE END Header */
@@ -52,6 +53,11 @@ CAN_RxHeaderTypeDef rxHeader; 			//CAN Bus receive header
 uint8_t canRX[8] = {0,0,0,0,0,0,0,0};  	//CAN Bus Receive Buffer
 CAN_FilterTypeDef canfilter; 			//CAN Bus Filter
 
+//#define startupInfo
+#define CANtimeout
+//#define DEBUG
+#define LEDstartup
+
 
 // Format for data
 // intVal    - 	Integer Value
@@ -82,10 +88,11 @@ int mainRelay = 0;
 int fuelPump = 0;
 int CEL = 0;
 int egoHeater = 0;
+int stoich = 14.7;
 
 // 1					{int	dec		scale	dscale	max		min		val
 struct rxData rpm = 	{0,		0,		1,		1,		7200,	50,		0};
-struct rxData timing = 	{0,		0,	(1/0.02),	100,	50,		-50,	0};
+struct rxData timing = 	{0,		0,	 (1/0.02),	100,	50,		-50,	0};
 struct rxData injDuty = {0,		0,	 (1/0.5),	1,		100,	0,		0};
 struct rxData vss = 	{0,		0,		1,		1,		1,		300,	0};
 
@@ -95,9 +102,12 @@ struct rxData tps1 = 	{0,		0,		1,		1,		100,	0,		0};
 struct rxData tps2 = 	{0,		0,		1,		1,		100,	1,		0};
 
 // 3					{int	dec		scale	dscale	max		min		val
-struct rxData map = 	{0,		0,	(1/0.03),	100,	120,	0,		0};
+struct rxData map = 	{0,		0,	 (1/0.03),	100,	120,	0,		0};
+struct rxData mapPSI = 	{0,		0,	 (1/0.03),	100,	30,		0,		0};
 struct rxData clt = 	{0,		0,		1,		1,		250,	0,		0};
-struct rxData iat = 	{0,		0,		1,		1,		200,	0,		0};
+struct rxData cltF = 	{0,		0,		1,		1,		300,	0,		0};
+struct rxData iat = 	{0,		0,		1,		1,		100,	0,		0};
+struct rxData iatF = 	{0,		0,		1,		1,		200,	0,		0};
 struct rxData auxT1 = 	{0,		0,		1,		1,		250,	0,		0};
 struct rxData auxT2 = 	{0,		0,		1,		1,		250,	0,		0};
 struct rxData mcuT = 	{0,		0,		1,		1,		250,	0,		0};
@@ -105,16 +115,17 @@ struct rxData fuel = 	{0,		0,		2,		1,		100,	0,		0};
 
 // 4					{int	dec		scale	dscale	max		min		val
 struct rxData afr = 	{0,		0,		1000,	100,	22,		0,		0};
-struct rxData oilPress= {0,		0,	(1/0.03),	10,		100,	0,		0};
+struct rxData afrl = 	{0,		0,		1000,	100,	2,		0,		0};
+struct rxData oilPress= {0,		0,	  (1/0.03),	10,		100,	0,		0};
 struct rxData vvtPos = 	{0,		0,		1,		1,		50,		-50,	0};
 struct rxData battery = {0,		0,		1000,	10,		0,		16,		0};
 
 // 5						{int	dec		scale	dscale	max		min		val
 struct rxData cylAirMass =	{0,		0,		1,		1,		100,	0,		0};
 struct rxData estAir =		{0,		0,		100,	10,		100,	0,		0};
-struct rxData injPW = 		{0,		0,	(1/0.003),	10,		100,	0,		0};
+struct rxData injPW = 		{0,		0,	 (1/0.003),	10,		100,	0,		0};
 
-struct minMaxData storedMinMax = {0 , 0, 0, 0, 0, 0};
+struct minMaxData storedMinMax = {0, 0, 0, 0, 0, 0};
 
 // User button
 int currentMs = 0;
@@ -124,10 +135,12 @@ int btnPress = 0;
 
 // Gauges, adjust current for starting
 int currentGauge = 0;
-int totalNumGauge = 6;
+int totalNumGauge = 8;
 
 //Test data
+#ifdef DEBUG
 int b[] = {0,0,0,0,0,0,0};
+#endif
 
 // CAN IDs for Filters
 const int filterID[] = {(512), (513), (514), (515), (516), (517)};
@@ -152,6 +165,10 @@ int lastCanMessage = 0;
 int canWaitTime = 2000;
 
 int idleLED = 0;
+int config = 0;
+int LEDconfig = 0;
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -165,6 +182,7 @@ static void MX_CAN_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan1){
 	// Receive CAN message interrupt
 	HAL_CAN_GetRxMessage(hcan1, CAN_RX_FIFO0, &rxHeader, canRX);
@@ -172,6 +190,18 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan1){
 	msgRXstatus = 1;
 	rxID = rxHeader.StdId;
 }
+
+void checkConfig(){
+
+	if (HAL_GPIO_ReadPin(GPIOB, config1_Pin) == 0){
+		LEDconfig = 1;
+	}
+	if (HAL_GPIO_ReadPin(GPIOB, config2_Pin) == 0){
+		config = 1;
+
+	}
+}
+
 
 void EXTI4_15_IRQHandler(){
 	// Push button interrupt
@@ -221,11 +251,23 @@ int getDecValue(struct rxData* data){
 	 return data->decVal;
 }
 
+int C2F ( int c){
+	int f = ((c * 9)/5)+32;
+	return f;
+}
+
+int kpa2psi (int kpa){
+
+	int psi = ((kpa * 1450)/10000);
+	return psi;
+}
+
 void getData(){
 
 
 	switch(rxID){
 
+#ifdef DEBUG
 	case (511):
 		// Get test data
 		 b[0] = canRX[0];
@@ -236,6 +278,7 @@ void getData(){
 		 b[5] = canRX[5];
 		 b[6] = canRX[6];
 		 b[7] = canRX[7];
+#endif
 
 	case 512 :
 		// counts or enabled status
@@ -399,6 +442,12 @@ void printValueSmall(int data, int X, int Y){
 			ssd1306_WriteString(buff, Font_7x10, White);
 }
 
+void printValue(int data, int X, int Y){
+	ssd1306_SetCursor(X, Y);
+	snprintf(buff, sizeof(buff), "%d", data);
+			ssd1306_WriteString(buff, Font_11x18, White);
+}
+
 void printBarGraph(int X, int Y, int height, int width, int progress, int boarder){
 
 	// Draw bar graph
@@ -496,21 +545,39 @@ void getMinMax(struct rxData *data){
 	}
 }
 
+
 void printStartup(){
 
+//#ifdef startupInfo
+	if (config == 0){
 	ssd1306_Fill(Black);
 	printText("CAN 500k",5,05);
 	printText("Base ID 512 ",5,25);
-	printText("Waiting ...",5,45);
+	printText("Config ",5,45);
+	printValue(config, 80, 45);
+	printValue(LEDconfig, 95, 45);
+	ssd1306_UpdateScreen();
+	}
+//#else
+	else{
+	ssd1306_Fill(Black);
+	printText("Waiting",5,05);
 	ssd1306_UpdateScreen();
 
+//#endif
+
+}
 }
 
 
 void LEDprogress(int l){
 
-	HAL_GPIO_WritePin(GPIOA, LED1_Pin|LED2_Pin|LED3_Pin|LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin|LED8_Pin|LED9_Pin|LED10_Pin, GPIO_PIN_RESET);
 
+	// Set all LED outputs off
+				HAL_GPIO_WritePin(GPIOA, LED1_Pin|LED2_Pin|LED3_Pin|LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin|LED8_Pin|LED9_Pin|LED10_Pin, GPIO_PIN_RESET);
+
+
+	// Set 1 - 10 LEDs on
 	switch(l){
 
 	case 0 :
@@ -558,13 +625,19 @@ void LEDprogress(int l){
 	 	break;
 
 	default:
-		HAL_GPIO_WritePin(GPIOA, LED2_Pin|LED4_Pin|LED6_Pin|LED8_Pin|LED10_Pin, GPIO_PIN_SET);
+		break;
 	}
+
+
 }
 
 void LEDsingle(int l){
-	HAL_GPIO_WritePin(GPIOA, LED1_Pin|LED2_Pin|LED3_Pin|LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin|LED8_Pin|LED9_Pin|LED10_Pin, GPIO_PIN_RESET);
 
+	// Set all LED outputs off
+				HAL_GPIO_WritePin(GPIOA, LED1_Pin|LED2_Pin|LED3_Pin|LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin|LED8_Pin|LED9_Pin|LED10_Pin, GPIO_PIN_RESET);
+
+
+	// Set single LED 1-10 on
 	switch(l){
 
 	case 1:
@@ -599,7 +672,8 @@ void LEDsingle(int l){
 				 break;
 	default:
 		break;
-	}
+
+		}
 }
 
 void getPercentMinMax(int p, int *min, int *max){
@@ -667,8 +741,6 @@ void updateGauge(int gaugePrint){
 //	break;
 
 
-
-
 	ssd1306_Fill(Black);
 	switch (gaugePrint){
 
@@ -681,10 +753,39 @@ void updateGauge(int gaugePrint){
 		ssd1306_UpdateScreen();
 		p = getPercent(&afr);
 		p = p /10;
-		LEDprogress(p);
+
+		// Set LEDs
+		if (LEDconfig == 1){
+			LEDsingle(p);
+		}
+		else {
+			LEDprogress(p);
+		}
+
 		break;
 
-	case 1 : // Intake Temp
+	case 1 : // AFR
+		currentFilter = 4;
+		afrl.val = (afr.val/stoich);
+		getIntValue(&afrl);
+		getDecValue(&afrl);
+		printText("Lambda",5,2);
+		printDataDigitalLarge(&afrl,5,30);
+		ssd1306_UpdateScreen();
+		p = getPercent(&afrl);
+		p = p /10;
+
+		// Set LEDs
+		if (LEDconfig == 1){
+			LEDsingle(p);
+		}
+		else {
+			LEDprogress(p);
+		}
+
+		break;
+
+	case 2 : // Intake Temp C
 		currentFilter = 3;
 		getIntValue(&iat);
 		getDecValue(&iat);
@@ -693,35 +794,35 @@ void updateGauge(int gaugePrint){
 		ssd1306_UpdateScreen();
 		p = getPercent(&iat);
 		p = p /10;
-		LEDprogress(p);
+		// Set LEDs
+			if (LEDconfig == 1){
+				LEDsingle(p);
+			}
+			else {
+				LEDprogress(p);
+			}
 		break;
 
-
-	case 2 : //RPM
-		currentFilter = 1;
-		getIntValue(&rpm);
-		getDecValue(&rpm);
-		printText("RPM",5,2);
-		printDataDigitalLarge(&rpm,5,30);
+	case 3 : // Intake Temp F
+		currentFilter = 3;
+		iatF.val = C2F(iat.val);
+		getIntValue(&iatF);
+		getDecValue(&iatF);
+		printText("Intake F",5,2);
+		printDataDigitalLarge(&iatF,5,30);
 		ssd1306_UpdateScreen();
-		p = getPercent(&rpm);
+		p = getPercent(&iatF);
 		p = p /10;
-		LEDprogress(p);
+		// Set LEDs
+			if (LEDconfig == 1){
+				LEDsingle(p);
+			}
+			else {
+				LEDprogress(p);
+			}
 		break;
 
-	case 3 : // TPS
-		currentFilter = 2;
-		getIntValue(&tps1);
-		getDecValue(&tps1);
-		printText("TPS",5,2);
-		printDataDigitalLarge(&tps1,5,30);
-		ssd1306_UpdateScreen();
-		p = getPercent(&tps1);
-		p = p /10;
-		LEDprogress(p);
-		break;
-
-	case 4 : // clt
+	case 4 : // clt C
 		currentFilter = 3;
 		getIntValue(&clt);
 		getDecValue(&clt);
@@ -730,22 +831,89 @@ void updateGauge(int gaugePrint){
 		ssd1306_UpdateScreen();
 		p = getPercent(&clt);
 		p = p /10;
-		LEDprogress(p);
+		// Set LEDs
+			if (LEDconfig == 1){
+				LEDsingle(p);
+			}
+			else {
+				LEDprogress(p);
+			}
 		break;
 
+	case 5 : // clt F
+		currentFilter = 3;
+		cltF.val = C2F(clt.val);
+		getIntValue(&cltF);
+		getDecValue(&cltF);
+		printText("Coolant F",5,2);
+		printDataDigitalLarge(&cltF,5,30);
+		ssd1306_UpdateScreen();
+		p = getPercent(&cltF);
+		p = p /10;
+		// Set LEDs
+			if (LEDconfig == 1){
+				LEDsingle(p);
+			}
+			else {
+				LEDprogress(p);
+			}
+		break;
 
-	case 5 : // map
+	case 6 : // map kpa
 		currentFilter = 3;
 		getIntValue(&map);
 		getDecValue(&map);
-		printText("MAP kpa",5,2);
+		printText("MAP kPa",5,2);
 		printDataDigitalLarge(&map,5,30);
 		ssd1306_UpdateScreen();
 		p = getPercent(&map);
 		p = p /10;
-		LEDprogress(p);
+		// Set LEDs
+			if (LEDconfig == 1){
+				LEDsingle(p);
+			}
+			else {
+				LEDprogress(p);
+			}
 		break;
 
+	case 7 : // map psi
+		currentFilter = 3;
+
+		mapPSI.val =  kpa2psi(map.val);
+		getIntValue(&mapPSI);
+		getDecValue(&mapPSI);
+		printText("MAP PSI",5,2);
+		printDataDigitalLarge(&mapPSI,5,30);
+		ssd1306_UpdateScreen();
+		p = getPercent(&mapPSI);
+		p = p /10;
+		// Set LEDs
+			if (LEDconfig == 1){
+				LEDsingle(p);
+			}
+			else {
+				LEDprogress(p);
+			}
+		break;
+
+	case 8 : //RPM
+		currentFilter = 1;
+		getIntValue(&rpm);
+		getDecValue(&rpm);
+		printText("RPM",5,2);
+		printDataDigitalLarge(&rpm,5,30);
+		ssd1306_UpdateScreen();
+		p = getPercent(&rpm);
+		p = p /10;
+		// Set LEDs
+			if (LEDconfig == 1){
+				LEDsingle(p);
+			}
+			else {
+				LEDprogress(p);
+			}
+		break;
 
 	default : // If no gauge is available print something
 		ssd1306_SetCursor(5, 30);
@@ -755,12 +923,10 @@ void updateGauge(int gaugePrint){
 		ssd1306_WriteString(buff, Font_11x18, White);
 		ssd1306_UpdateScreen();
 
-
-
 		if (idleLED > 10){
 			idleLED = 0;
 		}
-		else{
+		else {
 			idleLED ++;
 		}
 
@@ -769,10 +935,7 @@ void updateGauge(int gaugePrint){
 			HAL_Delay(100);
 			LEDprogress(idleLED);
 		}
-
 		break;
-
-
 	}
 }
 
@@ -817,8 +980,10 @@ int main(void)
 
 	// Initialize Display and clear
 	ssd1306_Init();
+	checkConfig();
 	printStartup();
 
+#ifdef LEDstartup
 	int cycle = 0;
 	while (cycle  < 10){
 	LEDsingle(cycle);
@@ -831,6 +996,7 @@ int main(void)
 	LEDprogress(9);
 	HAL_Delay(500);
 	LEDprogress(0);
+#endif
 
   /* USER CODE END 2 */
 
@@ -845,13 +1011,16 @@ int main(void)
 
 	// Print current gauge to display
 
-//	 if (lastCanMessage > 0 && ((HAL_GetTick() - lastCanMessage) > canWaitTime)){
-//		 	ssd1306_Fill(Black);
-//		 	printTextLarge("Lost CAN",5,5);
-//		 	printTextLarge("Connection",5,20);
-//		 	printTextLarge("!!!!!!!",20,40);
-//		 	ssd1306_UpdateScreen();
-//	 }
+#ifdef CANtimeout
+	 if (lastCanMessage > 0 && ((HAL_GetTick() - lastCanMessage) > canWaitTime)){
+		 	ssd1306_Fill(Black);
+		 	printTextLarge("Lost",5,5);
+		 	printTextLarge("Data",5,20);
+		 	printTextLarge("Connection",5,35);
+		 	ssd1306_UpdateScreen();
+		 	LEDsingle(999);
+	 }
+#endif
 
 	// Get data from received CAN message
 	 if (msgRXstatus == 1){
@@ -878,7 +1047,6 @@ int main(void)
 		 updateGauge(currentGauge);
 		 canFilterInit(filterID[currentFilter], filterID[currentFilter]);
 	 }
-
   }
   /* USER CODE END 3 */
 }
@@ -1037,6 +1205,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : config1_Pin config2_Pin */
+  GPIO_InitStruct.Pin = config1_Pin|config2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
   /*Configure GPIO pin : LED10_Pin */
   GPIO_InitStruct.Pin = LED10_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -1050,6 +1224,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(button_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : SPARE_1_Pin SPARE_2_Pin */
+  GPIO_InitStruct.Pin = SPARE_1_Pin|SPARE_2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI4_15_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI4_15_IRQn);
@@ -1057,6 +1237,8 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+/* USER CODE END 4 */
 
 /**
   * @brief  This function is executed in case of error occurrence.

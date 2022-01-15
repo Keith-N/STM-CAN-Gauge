@@ -25,8 +25,8 @@ int accel = 0;
 int tps1 = 0;
 int tps2 = 0;
 int map1 = 0;
-int clt = 0;
-int iat = 0;
+float clt = 0;
+float iat = 0;
 int auxT1 =0;
 int auxT2 =0;
 int mcuT = 0;
@@ -228,18 +228,18 @@ void incrementData(){
     tps2 = 0;
   }
 
-  map1=map1+100;
-    if (map1 > 10000){
+  map1=map1+10;
+    if (map1 > (208 / 0.03)){
     map1 = 0;
   }
   
-  clt=clt+2;
-  if (clt > 200){
+  clt=clt+0.2;
+  if (clt > 280){
     clt = 0;
   }
 
-  iat=iat+2;
-  if (iat > 200){
+  iat=iat+0.1;
+  if (iat > 120){
     iat = 0;
   }
 
