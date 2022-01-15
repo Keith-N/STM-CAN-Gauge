@@ -4,6 +4,8 @@ An STM32F042 based CAN gauge for use with rusEFI ECUs. <br/>
 CAN is configured for 500k with a base ID of 512. <br/>
 Input voltage tested at 5V and 12V. <br/>
 
+Flash 'CAN Gauge.bin' through STM32CubeProgrammer using STLink and TC2030. <br/>
+
 The only required connections for operation are supply voltage/ground and CAN High/Low. <br/>
 
 
