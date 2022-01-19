@@ -70,9 +70,12 @@ CAN_FilterTypeDef canfilter; 			//CAN Bus Filter
 
 
 struct rxData{
-	int intVal, decVal, scale, decScale, max, min, val;
+	int intVal;
+	int decVal, scale, decScale, max, min, val;
 	int intMax, intMin, decMax, decMin, valMin, valMax;
 };
+
+
 
 struct minMaxData{
 	int  intMax, intMin, decMax, decMin, valMin, valMax;
@@ -90,10 +93,10 @@ int CEL = 0;
 int egoHeater = 0;
 int stoich = 14.7;
 
-// 1					{int	dec		scale	dscale	max		min		val
+// 1					{int	dec		scale	dscale 	max		min		val
 struct rxData rpm = 	{0,		0,		1,		1,		7200,	50,		0};
-struct rxData timing = 	{0,		0,	 (1/0.02),	100,	50,		-50,	0};
-struct rxData injDuty = {0,		0,	 (1/0.5),	1,		100,	0,		0};
+struct rxData timing = 	{0,		0,	 	1,		100,	50,		-50,	0};
+struct rxData injDuty = {0,		0,		1,		1,		100,	0,		0};
 struct rxData vss = 	{0,		0,		1,		1,		1,		300,	0};
 
 // 2					{int	dec		scale	dscale	max		min		val
@@ -102,8 +105,8 @@ struct rxData tps1 = 	{0,		0,		1,		1,		100,	0,		0};
 struct rxData tps2 = 	{0,		0,		1,		1,		100,	1,		0};
 
 // 3					{int	dec		scale	dscale	max		min		val
-struct rxData map = 	{0,		0,	 (1/0.03),	100,	120,	0,		0};
-struct rxData mapPSI = 	{0,		0,	 (1/0.03),	100,	30,		0,		0};
+struct rxData map = 	{0,		0,		1,		100,	120,	0,		0};
+struct rxData mapPSI = 	{0,		0,	 	1,		100,	30,		0,		0};
 struct rxData clt = 	{0,		0,		1,		1,		250,	0,		0};
 struct rxData cltF = 	{0,		0,		1,		1,		300,	0,		0};
 struct rxData iat = 	{0,		0,		1,		1,		100,	0,		0};
@@ -111,14 +114,14 @@ struct rxData iatF = 	{0,		0,		1,		1,		200,	0,		0};
 struct rxData auxT1 = 	{0,		0,		1,		1,		250,	0,		0};
 struct rxData auxT2 = 	{0,		0,		1,		1,		250,	0,		0};
 struct rxData mcuT = 	{0,		0,		1,		1,		250,	0,		0};
-struct rxData fuel = 	{0,		0,		2,		1,		100,	0,		0};
+struct rxData fuel = 	{0,		0,		1,		1,		100,	0,		0};
 
 // 4					{int	dec		scale	dscale	max		min		val
-struct rxData afr = 	{0,		0,		1000,	100,	22,		0,		0};
-struct rxData afrl = 	{0,		0,		1000,	100,	2,		0,		0};
-struct rxData oilPress= {0,		0,	  (1/0.03),	10,		100,	0,		0};
+struct rxData afr = 	{0,		0,		1,		100,	22,		0,		0};
+struct rxData afrl = 	{0,		0,		1,		100,	2,		0,		0};
+struct rxData oilPress= {0,		0,	  	1,		10,		100,	0,		0};
 struct rxData vvtPos = 	{0,		0,		1,		1,		50,		-50,	0};
-struct rxData battery = {0,		0,		1000,	10,		0,		16,		0};
+struct rxData battery = {0,		0,		1,		10,		0,		16,		0};
 
 // 5						{int	dec		scale	dscale	max		min		val
 struct rxData cylAirMass =	{0,		0,		1,		1,		100,	0,		0};
@@ -237,9 +240,10 @@ int byte2Data(int b1, int b2){
 int getIntValue(struct rxData* data){
 	 // Get the integer value
 	 // Multiply by the inverse of the scale
-	 data->intVal = data->val / data->scale;
+	 data->intVal = data->val / data->decScale;
 	 return data->intVal;
 }
+
 
 int getDecValue(struct rxData* data){
 
@@ -247,7 +251,7 @@ int getDecValue(struct rxData* data){
 	 // Subtract the int value from the total
 	 // Multiply by the inverse of the scale
 	 // Scale and multiply to get number of desired decimal places
-	 data->decVal = ((data->val  - (data->intVal*data->scale)) * (data->decScale)/(data->scale));
+	 data->decVal = (data->val  - (data->intVal*data->decScale));
 	 return data->decVal;
 }
 
@@ -295,6 +299,7 @@ void getData(){
 		rpm.val = byte2Data(1,0);		//RPM
 		timing.val = byte2Data(3,2);	//Timing deg
 		injDuty.val = byte2Data(5,4);	//Injector Duty %
+		injDuty.val = injDuty.val;
 		vss.val = canRX[6];				//Vehicle Speed kph
 		break;
 
@@ -306,6 +311,8 @@ void getData(){
 
 	case 515 :
 		map.val = byte2Data(1,0);		//MAP kPa
+		map.val = (map.val/.3);
+
 		clt.val = canRX[2];				//Coolant Temp C
 		iat.val = canRX[3];				//Intake Temp C
 		auxT1.val = canRX[4];			//Aux Temp 1 C
@@ -316,15 +323,22 @@ void getData(){
 
 	case 516 :
 		afr.val = byte2Data(1,0);		//AFR
+		afr.val = afr.val/10;
+
 		oilPress.val = byte2Data(3,2);	//Oil Pressure kPa
+
 		vvtPos.val = byte2Data(5,4);	//VVT Position deg
+
 		battery.val = byte2Data(7,6);	//Battery mV
 		break;
 
 	case 517 :
 		cylAirMass.val = byte2Data(1,0);	//Cylinder Air Mass mg
+
 		estAir.val = byte2Data(3,2);		//Estimated Air Flow kg/h
+
 		injPW.val = byte2Data(5,4);			//Injector Pulse Width ms
+
 		break;
 
 	}
@@ -764,26 +778,26 @@ void updateGauge(int gaugePrint){
 
 		break;
 
-	case 1 : // AFR
-		currentFilter = 4;
-		afrl.val = (afr.val/stoich);
-		getIntValue(&afrl);
-		getDecValue(&afrl);
-		printText("Lambda",5,2);
-		printDataDigitalLarge(&afrl,5,30);
-		ssd1306_UpdateScreen();
-		p = getPercent(&afrl);
-		p = p /10;
-
-		// Set LEDs
-		if (LEDconfig == 1){
-			LEDsingle(p);
-		}
-		else {
-			LEDprogress(p);
-		}
-
-		break;
+//	case 1 : // AFR
+//		currentFilter = 4;
+//		afrl.val = (afr.val/stoich);
+//		getIntValue(&afrl);
+//		getDecValue(&afrl);
+//		printText("Lambda",5,2);
+//		printDataDigitalLarge(&afrl,5,30);
+//		ssd1306_UpdateScreen();
+//		p = getPercent(&afrl);
+//		p = p /10;
+//
+//		// Set LEDs
+//		if (LEDconfig == 1){
+//			LEDsingle(p);
+//		}
+//		else {
+//			LEDprogress(p);
+//		}
+//
+//		break;
 
 	case 2 : // Intake Temp C
 		currentFilter = 3;
@@ -803,24 +817,24 @@ void updateGauge(int gaugePrint){
 			}
 		break;
 
-	case 3 : // Intake Temp F
-		currentFilter = 3;
-		iatF.val = C2F(iat.val);
-		getIntValue(&iatF);
-		getDecValue(&iatF);
-		printText("Intake F",5,2);
-		printDataDigitalLarge(&iatF,5,30);
-		ssd1306_UpdateScreen();
-		p = getPercent(&iatF);
-		p = p /10;
-		// Set LEDs
-			if (LEDconfig == 1){
-				LEDsingle(p);
-			}
-			else {
-				LEDprogress(p);
-			}
-		break;
+//	case 3 : // Intake Temp F
+//		currentFilter = 3;
+//		iatF.val = C2F(iat.val);
+//		getIntValue(&iatF);
+//		getDecValue(&iatF);
+//		printText("Intake F",5,2);
+//		printDataDigitalLarge(&iatF,5,30);
+//		ssd1306_UpdateScreen();
+//		p = getPercent(&iatF);
+//		p = p /10;
+//		// Set LEDs
+//			if (LEDconfig == 1){
+//				LEDsingle(p);
+//			}
+//			else {
+//				LEDprogress(p);
+//			}
+//		break;
 
 	case 4 : // clt C
 		currentFilter = 3;
@@ -840,24 +854,24 @@ void updateGauge(int gaugePrint){
 			}
 		break;
 
-	case 5 : // clt F
-		currentFilter = 3;
-		cltF.val = C2F(clt.val);
-		getIntValue(&cltF);
-		getDecValue(&cltF);
-		printText("Coolant F",5,2);
-		printDataDigitalLarge(&cltF,5,30);
-		ssd1306_UpdateScreen();
-		p = getPercent(&cltF);
-		p = p /10;
-		// Set LEDs
-			if (LEDconfig == 1){
-				LEDsingle(p);
-			}
-			else {
-				LEDprogress(p);
-			}
-		break;
+//	case 5 : // clt F
+//		currentFilter = 3;
+//		cltF.val = C2F(clt.val);
+//		getIntValue(&cltF);
+//		getDecValue(&cltF);
+//		printText("Coolant F",5,2);
+//		printDataDigitalLarge(&cltF,5,30);
+//		ssd1306_UpdateScreen();
+//		p = getPercent(&cltF);
+//		p = p /10;
+//		// Set LEDs
+//			if (LEDconfig == 1){
+//				LEDsingle(p);
+//			}
+//			else {
+//				LEDprogress(p);
+//			}
+//		break;
 
 	case 6 : // map kpa
 		currentFilter = 3;
@@ -877,25 +891,25 @@ void updateGauge(int gaugePrint){
 			}
 		break;
 
-	case 7 : // map psi
-		currentFilter = 3;
-
-		mapPSI.val =  kpa2psi(map.val);
-		getIntValue(&mapPSI);
-		getDecValue(&mapPSI);
-		printText("MAP PSI",5,2);
-		printDataDigitalLarge(&mapPSI,5,30);
-		ssd1306_UpdateScreen();
-		p = getPercent(&mapPSI);
-		p = p /10;
-		// Set LEDs
-			if (LEDconfig == 1){
-				LEDsingle(p);
-			}
-			else {
-				LEDprogress(p);
-			}
-		break;
+//	case 7 : // map psi
+//		currentFilter = 3;
+//
+//		mapPSI.val = kpa2psi(map.val);
+//		getIntValue(&mapPSI);
+//		getDecValue(&mapPSI);
+//		printText("MAP PSI",5,2);
+//		printDataDigitalLarge(&mapPSI,5,30);
+//		ssd1306_UpdateScreen();
+//		p = getPercent(&mapPSI);
+//		p = p /10;
+//		// Set LEDs
+//			if (LEDconfig == 1){
+//				LEDsingle(p);
+//			}
+//			else {
+//				LEDprogress(p);
+//			}
+//		break;
 
 	case 8 : //RPM
 		currentFilter = 1;
@@ -916,26 +930,29 @@ void updateGauge(int gaugePrint){
 		break;
 
 	default : // If no gauge is available print something
-		ssd1306_SetCursor(5, 30);
-		ssd1306_WriteString("No Data Set", Font_11x18, White);
-		ssd1306_SetCursor(5, 0);
-		snprintf(buff, sizeof(buff), "Gauge %d", currentGauge);
-		ssd1306_WriteString(buff, Font_11x18, White);
-		ssd1306_UpdateScreen();
+//		ssd1306_SetCursor(5, 30);
+//		ssd1306_WriteString("No Data Set", Font_11x18, White);
+//		ssd1306_SetCursor(5, 0);
+//		snprintf(buff, sizeof(buff), "Gauge %d", currentGauge);
+//		ssd1306_WriteString(buff, Font_11x18, White);
+//		ssd1306_UpdateScreen();
+//
+//		if (idleLED > 10){
+//			idleLED = 0;
+//		}
+//		else {
+//			idleLED ++;
+//		}
+//
+//		LEDsingle(idleLED);
+//		if (idleLED == 10){
+//			HAL_Delay(100);
+//			LEDprogress(idleLED);
+//		}
 
-		if (idleLED > 10){
-			idleLED = 0;
-		}
-		else {
-			idleLED ++;
-		}
-
-		LEDsingle(idleLED);
-		if (idleLED == 10){
-			HAL_Delay(100);
-			LEDprogress(idleLED);
-		}
+		btnPress=1;
 		break;
+
 	}
 }
 

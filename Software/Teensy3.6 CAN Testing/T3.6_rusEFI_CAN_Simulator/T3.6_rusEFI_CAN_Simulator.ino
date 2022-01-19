@@ -7,7 +7,7 @@
 int ledState = 0;
 int var = 13 * 1000 ;
 int canID = 512;
-int delayTime = 5; 
+int delayTime = 50; 
 int canID0 = canID;
 int canID1 = canID + 1;
 int canID2 = canID + 2;
@@ -16,10 +16,10 @@ int canID4 = canID + 4;
 int canID5 = canID + 5;
 int canID6 = canID + 6;
 
-int afr = 0;
+float afr = 0;
 int rpm = 0;
-int ignTiming =  0;
-int injDuty = 0;
+float ignTiming =  0;
+float injDuty = 0;
 int vss = 0;
 int accel = 0;
 int tps1 = 0;
@@ -32,7 +32,7 @@ int auxT2 =0;
 int mcuT = 0;
 int oilPress = 0;
 int vvt = 0;
-int vbat = 0;
+float vbat = 0;
 int airMass = 0;
 int estAir = 0;
 int injPW =0;
@@ -92,13 +92,17 @@ void messageSetup(){
   // RPM
   msg1.buf[0] = (byte) (rpm & 0xFF);
   msg1.buf[1] = (byte) ((rpm >> 8) & 0xFF);
+  
   // Ign Timing
-  ignTiming = ignTiming * 200;
-  msg1.buf[2] = (byte) (ignTiming & 0xFF);
-  msg1.buf[3] = (byte) ((ignTiming >> 8) & 0xFF);
+ int ignTimingInt = (ignTiming * (1/0.2));
+  msg1.buf[2] = (byte) (ignTimingInt & 0xFF);
+  msg1.buf[3] = (byte) ((ignTimingInt >> 8) & 0xFF);
+ 
   // Injector Duty
-  msg1.buf[4] = (byte) (injDuty & 0xFF);
-  msg1.buf[5] = (byte) ((injDuty >> 8) & 0xFF);
+  int injDutyInt = injDuty * (1/0.5);
+  msg1.buf[4] = (byte) (injDutyInt & 0xFF);
+  msg1.buf[5] = (byte) ((injDutyInt >> 8) & 0xFF);
+  
   // Speed
   msg1.buf[6] = vss;
   // reserved
@@ -107,24 +111,34 @@ void messageSetup(){
   msg2.ext = 0;
   msg2.id = canID2;
   msg2.len = 8;
+  
   // Pedal Position
-  msg2.buf[0] = (byte) (vss & 0xFF);
-  msg2.buf[1] = (byte) ((vss >> 8) & 0xFF);
+  accel = accel * (1/0.01);
+  msg2.buf[0] = (byte) (accel & 0xFF);
+  msg2.buf[1] = (byte) ((accel >> 8) & 0xFF);
+  
   // Tps 1
+  tps1 = tps1 * (1/0.01);
   msg2.buf[2] = (byte) (tps1 & 0xFF);
   msg2.buf[3] = (byte) ((tps1 >> 8) & 0xFF);
+  
   // Tps 2
+  tps2 = tps2 * (1/0.01);
   msg2.buf[4] = (byte) (tps2 & 0xFF);
   msg2.buf[5] = (byte) ((tps2 >> 8) & 0xFF);
   // reserved
+  
   msg2.buf[6] = 0;
   msg2.buf[7] = 0;
 
   msg3.ext = 0;
   msg3.id = canID3;
   msg3.len = 8;
-  msg3.buf[0] = (byte) (map1 & 0xFF);
-  msg3.buf[1] = (byte) ((map1 >> 8) & 0xFF);
+
+  int map1Int = map1 * (1/0.03);
+  msg3.buf[0] = (byte) (map1Int & 0xFF);
+  msg3.buf[1] = (byte) ((map1Int >> 8) & 0xFF);
+  
   msg3.buf[2] = clt;
   msg3.buf[3] = iat;
   msg3.buf[4] = auxT1;
@@ -137,18 +151,25 @@ void messageSetup(){
   msg4.id = canID4;
   msg4.len = 8;
   // AFR
-  //afr = afr * 1000;
-  msg4.buf[0] = (byte) (afr & 0xFF);
-  msg4.buf[1] = (byte) ((afr >> 8) & 0xFF);
+  
+  int afrInt = afr * 1000;
+  msg4.buf[0] = (byte) (afrInt & 0xFF);
+  msg4.buf[1] = (byte) ((afrInt >> 8) & 0xFF);
+  
   // Oil Pressure
+  oilPress = oilPress * (1/0.03);
   msg4.buf[2] = (byte) (oilPress & 0xFF);
   msg4.buf[3] = (byte) ((oilPress >> 8) & 0xFF);
+  
   // VVT position
+  vvt = vvt * (1/0.02);
   msg4.buf[4] = (byte) (vvt & 0xFF);
   msg4.buf[5] = (byte) ((vvt >> 8) & 0xFF);
+  
   // Battery milivolts
-  msg4.buf[6] = (byte) (vbat & 0xFF);
-  msg4.buf[7] = (byte) ((vbat >> 8) & 0xFF);
+  int vbatInt = vbat * (1/.001);
+  msg4.buf[6] = (byte) (vbatInt & 0xFF);
+  msg4.buf[7] = (byte) ((vbatInt >> 8) & 0xFF);
 
   msg5.ext = 0;
   msg5.id = canID5;
@@ -157,9 +178,11 @@ void messageSetup(){
   msg5.buf[0] = (byte) (airMass & 0xFF);
   msg5.buf[1] = (byte) ((airMass >> 8) & 0xFF);
   // Est air flow
+  estAir = estAir * (1/0.1);
   msg5.buf[2] = (byte) (estAir & 0xFF);
   msg5.buf[3] = (byte) ((estAir >> 8) & 0xFF);
   // Injector pulse width
+  injPW = injPW * (1/.003);
   msg5.buf[4] = (byte) (injPW & 0xFF);
   msg5.buf[5] = (byte) ((injPW >> 8) & 0xFF);
   // reserved
@@ -188,8 +211,8 @@ void incrementData(){
   }
 
    
-  afr = afr + 10;
-  if (afr > 22000){
+  afr = afr + 0.2;
+  if (afr > 22){
     afr = 0;
   }
   
@@ -198,13 +221,13 @@ void incrementData(){
     rpm=0;
   }
 
-  ignTiming = ignTiming + 10;
-  if (ignTiming > 5000){
+  ignTiming = ignTiming + 1;
+  if (ignTiming > 50){
     ignTiming = -50;
   }
 
-  injDuty = (injDuty * 2);
-  if (injDuty > (100*2)){
+  injDuty = (injDuty + 1);
+  if (injDuty > (100)){
   injDuty = 0;
   }
 
@@ -228,19 +251,19 @@ void incrementData(){
     tps2 = 0;
   }
 
-  map1=map1+10;
-    if (map1 > (208 / 0.03)){
+  map1=map1 + 1;
+    if (map1 > (250)){
     map1 = 0;
   }
   
-  clt=clt+0.2;
+  clt=clt+1; 
   if (clt > 280){
-    clt = 0;
+    clt = -50;
   }
 
-  iat=iat+0.1;
+  iat=iat+1;
   if (iat > 120){
-    iat = 0;
+    iat = -50;
   }
 
   auxT1=auxT1+2;
@@ -273,8 +296,8 @@ void incrementData(){
     vvt = 0;
   }
 
-    vbat = vbat + 500;
-    if (vbat > 20000){
+    vbat = vbat + 0.5;
+    if (vbat > 20){
     vbat = 0;
   }
 
