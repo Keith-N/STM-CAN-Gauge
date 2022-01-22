@@ -86,6 +86,7 @@ struct minMaxData{
 // 0
 int warningCount = 0;
 int lastError = 0;
+
 int revLimit = 0;
 int mainRelay = 0;
 int fuelPump = 0;
@@ -105,8 +106,8 @@ struct rxData tps1 = 	{0,		0,		1,		1,		100,	0,		0};
 struct rxData tps2 = 	{0,		0,		1,		1,		100,	1,		0};
 
 // 3					{int	dec		A		B		max		min		val
-struct rxData map = 	{0,		0,		3,		100,	120,	0,		0};
-struct rxData mapPSI = 	{0,		0,	 	3,		100,	30,		0,		0};
+struct rxData map = 	{0,		0,		1,		100,	120,	0,		0};
+struct rxData mapPSI = 	{0,		0,	 	1,		100,	30,		0,		0};
 struct rxData clt = 	{0,		0,		1,		1,		200,	0,		0};
 struct rxData cltF = 	{0,		0,		1,		1,		300,	0,		0};
 struct rxData iat = 	{0,		0,		1,		1,		100,	0,		0};
