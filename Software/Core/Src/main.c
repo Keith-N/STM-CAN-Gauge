@@ -62,16 +62,16 @@ CAN_FilterTypeDef canfilter; 			//CAN Bus Filter
 // Format for data
 // intVal    - 	Integer Value
 // decVal    - 	Decimal Value
-// scale     -  Inverse of scale, Ex : 1 / 0.002 = 500
-// decScale  - 	Use to select decimal places, Ex : 10 will remove last digit, 100 -> up to 2 places
-// max		 -	Maximum value for graph
-// min		 - 	value for graph
+// MultA     -  Multiplier for integer of scale, eg. use 3 for 0.03
+// MultB  	 - 	Multiplier for decimal places of scale, eg. use 100 for 0.01
+// max		 -	Maximum value for graph/LEDs
+// min		 - 	value for graph/LEDs
 // val		 -  Received value
 
 
 struct rxData{
 	int intVal;
-	int decVal, scale, decScale, max, min, val;
+	int decVal, multA, multB, max, min, val;
 	int intMax, intMin, decMax, decMin, valMin, valMax;
 };
 
@@ -81,7 +81,7 @@ struct minMaxData{
 	int  intMax, intMin, decMax, decMin, valMin, valMax;
 };
 
-//[int] [dec] [scale] [dec scale] [max] [min] [val]
+//[int] [dec] [MultiplierA] [MultiplierB] [max] [min] [val]
 
 // 0
 int warningCount = 0;
@@ -93,21 +93,21 @@ int CEL = 0;
 int egoHeater = 0;
 int stoich = 14.7;
 
-// 1					{int	dec		scale	dscale 	max		min		val
-struct rxData rpm = 	{0,		0,		1,		1,		7200,	50,		0};
-struct rxData timing = 	{0,		0,	 	1,		100,	50,		-50,	0};
+// 1					{int	dec		A		B	 	max		min		val
+struct rxData rpm = 	{0,		0,		1,		1,		7000,	50,		0};
+struct rxData timing = 	{0,		0,	 	1,		1,		50,		-50,	0};
 struct rxData injDuty = {0,		0,		1,		1,		100,	0,		0};
 struct rxData vss = 	{0,		0,		1,		1,		1,		300,	0};
 
-// 2					{int	dec		scale	dscale	max		min		val
+// 2					{int	dec		A		B		max		min		val
 struct rxData accel = 	{0,		0,		1,		1,		100,	0,		0};
 struct rxData tps1 = 	{0,		0,		1,		1,		100,	0,		0};
 struct rxData tps2 = 	{0,		0,		1,		1,		100,	1,		0};
 
-// 3					{int	dec		scale	dscale	max		min		val
-struct rxData map = 	{0,		0,		1,		100,	120,	0,		0};
-struct rxData mapPSI = 	{0,		0,	 	1,		100,	30,		0,		0};
-struct rxData clt = 	{0,		0,		1,		1,		250,	0,		0};
+// 3					{int	dec		A		B		max		min		val
+struct rxData map = 	{0,		0,		3,		100,	120,	0,		0};
+struct rxData mapPSI = 	{0,		0,	 	3,		100,	30,		0,		0};
+struct rxData clt = 	{0,		0,		1,		1,		200,	0,		0};
 struct rxData cltF = 	{0,		0,		1,		1,		300,	0,		0};
 struct rxData iat = 	{0,		0,		1,		1,		100,	0,		0};
 struct rxData iatF = 	{0,		0,		1,		1,		200,	0,		0};
@@ -116,17 +116,17 @@ struct rxData auxT2 = 	{0,		0,		1,		1,		250,	0,		0};
 struct rxData mcuT = 	{0,		0,		1,		1,		250,	0,		0};
 struct rxData fuel = 	{0,		0,		1,		1,		100,	0,		0};
 
-// 4					{int	dec		scale	dscale	max		min		val
-struct rxData afr = 	{0,		0,		1,		100,	22,		0,		0};
+// 4					{int	dec		A		B		max		min		val
+struct rxData afr = 	{0,		0,		1,		100,	18,		8,		0};
 struct rxData afrl = 	{0,		0,		1,		100,	2,		0,		0};
 struct rxData oilPress= {0,		0,	  	1,		10,		100,	0,		0};
 struct rxData vvtPos = 	{0,		0,		1,		1,		50,		-50,	0};
-struct rxData battery = {0,		0,		1,		10,		0,		16,		0};
+struct rxData battery = {0,		0,		1,		1000,		0,		16,		0};
 
-// 5						{int	dec		scale	dscale	max		min		val
+// 5						{int	dec		A		B		max		min		val
 struct rxData cylAirMass =	{0,		0,		1,		1,		100,	0,		0};
-struct rxData estAir =		{0,		0,		100,	10,		100,	0,		0};
-struct rxData injPW = 		{0,		0,	 (1/0.003),	10,		100,	0,		0};
+struct rxData estAir =		{0,		0,		1,		10,		100,	0,		0};
+struct rxData injPW = 		{0,		0,	 	1,		10,		100,	0,		0};
 
 struct minMaxData storedMinMax = {0, 0, 0, 0, 0, 0};
 
@@ -239,8 +239,8 @@ int byte2Data(int b1, int b2){
 
 int getIntValue(struct rxData* data){
 	 // Get the integer value
-	 // Multiply by the inverse of the scale
-	 data->intVal = data->val / data->decScale;
+	 // Scale Value
+	 data->intVal = data->val * data->multA/data->multB;
 	 return data->intVal;
 }
 
@@ -251,7 +251,7 @@ int getDecValue(struct rxData* data){
 	 // Subtract the int value from the total
 	 // Multiply by the inverse of the scale
 	 // Scale and multiply to get number of desired decimal places
-	 data->decVal = (data->val  - (data->intVal*data->decScale));
+	 data->decVal = (data->val  - (data->intVal*data->multB));
 	 return data->decVal;
 }
 
@@ -519,8 +519,8 @@ int getPercent(struct rxData *data){
 	// This returns a percentage of the current value vs the set limits for the data
 
 	// Offset current and max values by min, then divide by the max to get the percentage
-	int p = ((data->val-(data->min*data->scale))*100);
-	p = p / ((data->max - data->min)*data->scale);
+	int p = ((data->val-(data->min*data->multB/data->multA))*100);
+	p = p / ((data->max - data->min)*data->multB/data->multA);
 
 	// Limit percentage to 0 -> 100
 	if (p > 100){
@@ -547,15 +547,15 @@ void getMinMax(struct rxData *data){
 	 // Update min/max if current value is exceeded
 	if (data->val < data->valMin){
 		data->valMin = data->val;
-		data->intMin = data->val / data->scale;
-		data->decMin = ((data->val  - (data->intVal*data->scale)) * (data->decScale)/(data->scale));
+		data->intMin = data->val * data->multA/data->multB;
+		data->decMin = ((data->val  - (data->intVal*data->multB/data->multA)) * data->multB/data->multA);
 	}
 
 	// Update min/max if current value is exceeded
 	if (data->val > data->valMax){
 		data->valMax = data->val;
-		data->intMax = data->val / data->scale;
-		data->decMax = ((data->val  - (data->intVal*data->scale)) * (data->decScale)/(data->scale));
+		data->intMin = data->val * data->multA/data->multB;
+		data->decMin = ((data->val  - (data->intVal*data->multB/data->multA)) * data->multB/data->multA);
 	}
 }
 
@@ -710,49 +710,48 @@ void getPercentMinMax(int p, int *min, int *max){
 }
 
 
+void printGauge(char *t, struct rxData *data2){
+//
+	getIntValue(data2);
+	getDecValue(data2);
+	p = getPercent(data2);
+//
+//	// Print Text Only
+//	if (config==0){
+	printText(t,5,2);
+	printDataDigitalLarge(data2,5,30);
+	ssd1306_UpdateScreen();
+//	}
+//
+//	// Print Text and Bar
+//	else{
+//	getPercentMinMax(p,&pMin,&pMax);
+//	printBarGraph(5,0,10,120,p,2);
+//	printBarMinMax(5,0,20,120,pMin,pMax);
+//	printTextSmall(t,2,45);
+//	printDataMin(data2,2,25);
+//	printDataMax(&afr,2,35);
+//	printDataDigitalLarge(data2,40,30);
+//	ssd1306_UpdateScreen();
+//	}
+//
+	p = p /10;
+	// Set LEDs
+	if (LEDconfig == 1){
+		LEDsingle(p);
+	}
+	else {
+		LEDprogress(p);
+	}
+//
+}
+
 
 void updateGauge(int gaugePrint){
 
 //Setup CAN filter with address for desired data
 //Print specified data to the display
 
-// Example Gauges
-
-// Basic AFR with LED Ring
-//	currentFilter = 4;
-//	getIntValue(&afr);
-//	getDecValue(&afr);
-//	printText("AFR",5,2);
-//	printDataDigitalLarge(&afr,5,30);
-//	ssd1306_UpdateScreen();
-//	p = getPercent(&afr);
-//	p = p /10;
-
-//	LEDprogress(p);
-
-//	break;
-
-
-// AFR with Bar Graph and single LED indicator
-//	currentFilter = 4;
-//	getIntValue(&afr);
-//	getDecValue(&afr);
-//	getMinMax(&afr);
-//	p = getPercent(&afr);
-//	getPercentMinMax(p,&pMin,&pMax);
-//	printBarGraph(5,0,10,120,p,2);
-//	printBarMinMax(5,0,20,120,pMin,pMax);
-//	printTextSmall("AFR",2,45);
-//	printDataMin(&afr,2,25);
-//	printDataMax(&afr,2,35);
-//	printDataDigitalLarge(&afr,40,30);
-//	ssd1306_UpdateScreen();
-//	p = getPercent(&afr);
-//	p = p /10;
-
-//	LEDsingle(p);
-
-//	break;
 
 
 	ssd1306_Fill(Black);
@@ -760,195 +759,34 @@ void updateGauge(int gaugePrint){
 
 	case 0 : // AFR
 		currentFilter = 4;
-		getIntValue(&afr);
-		getDecValue(&afr);
-		printText("AFR",5,2);
-		printDataDigitalLarge(&afr,5,30);
-		ssd1306_UpdateScreen();
-		p = getPercent(&afr);
-		p = p /10;
-
-		// Set LEDs
-		if (LEDconfig == 1){
-			LEDsingle(p);
-		}
-		else {
-			LEDprogress(p);
-		}
-
+		printGauge("AFR",&afr);
 		break;
 
-//	case 1 : // AFR
-//		currentFilter = 4;
-//		afrl.val = (afr.val/stoich);
-//		getIntValue(&afrl);
-//		getDecValue(&afrl);
-//		printText("Lambda",5,2);
-//		printDataDigitalLarge(&afrl,5,30);
-//		ssd1306_UpdateScreen();
-//		p = getPercent(&afrl);
-//		p = p /10;
-//
-//		// Set LEDs
-//		if (LEDconfig == 1){
-//			LEDsingle(p);
-//		}
-//		else {
-//			LEDprogress(p);
-//		}
-//
-//		break;
 
 	case 2 : // Intake Temp C
 		currentFilter = 3;
-		getIntValue(&iat);
-		getDecValue(&iat);
-		printText("Intake C",5,2);
-		printDataDigitalLarge(&iat,5,30);
-		ssd1306_UpdateScreen();
-		p = getPercent(&iat);
-		p = p /10;
-		// Set LEDs
-			if (LEDconfig == 1){
-				LEDsingle(p);
-			}
-			else {
-				LEDprogress(p);
-			}
+		printGauge("IAT C",&iat);
 		break;
 
-//	case 3 : // Intake Temp F
-//		currentFilter = 3;
-//		iatF.val = C2F(iat.val);
-//		getIntValue(&iatF);
-//		getDecValue(&iatF);
-//		printText("Intake F",5,2);
-//		printDataDigitalLarge(&iatF,5,30);
-//		ssd1306_UpdateScreen();
-//		p = getPercent(&iatF);
-//		p = p /10;
-//		// Set LEDs
-//			if (LEDconfig == 1){
-//				LEDsingle(p);
-//			}
-//			else {
-//				LEDprogress(p);
-//			}
-//		break;
 
 	case 4 : // clt C
 		currentFilter = 3;
-		getIntValue(&clt);
-		getDecValue(&clt);
-		printText("Coolant C",5,2);
-		printDataDigitalLarge(&clt,5,30);
-		ssd1306_UpdateScreen();
-		p = getPercent(&clt);
-		p = p /10;
-		// Set LEDs
-			if (LEDconfig == 1){
-				LEDsingle(p);
-			}
-			else {
-				LEDprogress(p);
-			}
+		printGauge("CLT C",&clt);
 		break;
 
-//	case 5 : // clt F
-//		currentFilter = 3;
-//		cltF.val = C2F(clt.val);
-//		getIntValue(&cltF);
-//		getDecValue(&cltF);
-//		printText("Coolant F",5,2);
-//		printDataDigitalLarge(&cltF,5,30);
-//		ssd1306_UpdateScreen();
-//		p = getPercent(&cltF);
-//		p = p /10;
-//		// Set LEDs
-//			if (LEDconfig == 1){
-//				LEDsingle(p);
-//			}
-//			else {
-//				LEDprogress(p);
-//			}
-//		break;
 
 	case 6 : // map kpa
 		currentFilter = 3;
-		getIntValue(&map);
-		getDecValue(&map);
-		printText("MAP kPa",5,2);
-		printDataDigitalLarge(&map,5,30);
-		ssd1306_UpdateScreen();
-		p = getPercent(&map);
-		p = p /10;
-		// Set LEDs
-			if (LEDconfig == 1){
-				LEDsingle(p);
-			}
-			else {
-				LEDprogress(p);
-			}
+		printGauge("MAP kPa",&map);
 		break;
 
-//	case 7 : // map psi
-//		currentFilter = 3;
-//
-//		mapPSI.val = kpa2psi(map.val);
-//		getIntValue(&mapPSI);
-//		getDecValue(&mapPSI);
-//		printText("MAP PSI",5,2);
-//		printDataDigitalLarge(&mapPSI,5,30);
-//		ssd1306_UpdateScreen();
-//		p = getPercent(&mapPSI);
-//		p = p /10;
-//		// Set LEDs
-//			if (LEDconfig == 1){
-//				LEDsingle(p);
-//			}
-//			else {
-//				LEDprogress(p);
-//			}
-//		break;
 
 	case 8 : //RPM
 		currentFilter = 1;
-		getIntValue(&rpm);
-		getDecValue(&rpm);
-		printText("RPM",5,2);
-		printDataDigitalLarge(&rpm,5,30);
-		ssd1306_UpdateScreen();
-		p = getPercent(&rpm);
-		p = p /10;
-		// Set LEDs
-			if (LEDconfig == 1){
-				LEDsingle(p);
-			}
-			else {
-				LEDprogress(p);
-			}
+		printGauge("RPM",&rpm);
 		break;
 
-	default : // If no gauge is available print something
-//		ssd1306_SetCursor(5, 30);
-//		ssd1306_WriteString("No Data Set", Font_11x18, White);
-//		ssd1306_SetCursor(5, 0);
-//		snprintf(buff, sizeof(buff), "Gauge %d", currentGauge);
-//		ssd1306_WriteString(buff, Font_11x18, White);
-//		ssd1306_UpdateScreen();
-//
-//		if (idleLED > 10){
-//			idleLED = 0;
-//		}
-//		else {
-//			idleLED ++;
-//		}
-//
-//		LEDsingle(idleLED);
-//		if (idleLED == 10){
-//			HAL_Delay(100);
-//			LEDprogress(idleLED);
-//		}
+	default : // If no gauge is available move to next
 
 		btnPress=1;
 		break;
