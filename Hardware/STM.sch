@@ -701,10 +701,6 @@ Text GLabel 2210 4590 0    50   Input ~ 0
 OSC_IN
 Text GLabel 2200 4690 0    50   Input ~ 0
 OSC_OUT
-Text GLabel 5020 3830 0    50   Input ~ 0
-OSC_IN
-Text GLabel 5030 4120 0    50   Input ~ 0
-OSC_OUT
 Wire Wire Line
 	2570 5190 2670 5190
 Wire Wire Line
