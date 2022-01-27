@@ -44,7 +44,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan;
-
 I2C_HandleTypeDef hi2c1;
 
 /* USER CODE BEGIN PV */
@@ -171,6 +170,7 @@ int canWaitTime = 2000;
 int idleLED = 0;
 int config = 0;
 int LEDconfig = 0;
+int startDelay = 0;
 
 
 /* USER CODE END PV */
@@ -686,6 +686,7 @@ void LEDsingle(int l){
 		 HAL_GPIO_WritePin(GPIOA, LED10_Pin, GPIO_PIN_SET);
 				 break;
 	default:
+		HAL_GPIO_WritePin(GPIOA, LED1_Pin|LED2_Pin|LED3_Pin|LED4_Pin|LED5_Pin|LED6_Pin|LED7_Pin|LED8_Pin|LED9_Pin|LED10_Pin, GPIO_PIN_RESET);
 		break;
 
 		}
@@ -811,14 +812,12 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
-
   /* USER CODE BEGIN SysInit */
 
   /* USER CODE END SysInit */
@@ -827,16 +826,16 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   MX_CAN_Init();
+  HAL_Delay(startDelay);
   /* USER CODE BEGIN 2 */
 
-	// Setup CAN
-	canFilterInit(filterID[currentFilter], filterID[currentFilter]);
-	HAL_CAN_Start(&hcan);
-	HAL_CAN_ActivateNotification(&hcan,CAN_IT_RX_FIFO0_MSG_PENDING);
 
 	// Initialize Display and clear
-	ssd1306_Init();
+
 	checkConfig();
+	ssd1306_Init();
+	ssd1306_Init();
+	ssd1306_Init();
 	printStartup();
 
 #ifdef LEDstartup
@@ -853,6 +852,12 @@ int main(void)
 	HAL_Delay(500);
 	LEDprogress(0);
 #endif
+
+
+// Setup CAN
+canFilterInit(filterID[currentFilter], filterID[currentFilter]);
+HAL_CAN_Start(&hcan);
+HAL_CAN_ActivateNotification(&hcan,CAN_IT_RX_FIFO0_MSG_PENDING);
 
   /* USER CODE END 2 */
 
