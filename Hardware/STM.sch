@@ -707,4 +707,18 @@ Wire Wire Line
 	2570 5290 2670 5290
 Wire Wire Line
 	4160 6390 3970 6390
+Wire Wire Line
+	2660 5090 1580 5090
+Wire Wire Line
+	1580 5090 1580 5100
+Wire Wire Line
+	2670 5890 1680 5890
+Wire Wire Line
+	2670 5990 1680 5990
+Text Label 1700 5090 0    50   ~ 0
+CONFIG_3
+Text Label 1820 5890 0    50   ~ 0
+CONFIG_4
+Text Label 1820 5990 0    50   ~ 0
+CONFIG_5
 $EndSCHEMATC
