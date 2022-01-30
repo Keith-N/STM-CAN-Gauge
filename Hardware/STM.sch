@@ -633,6 +633,8 @@ F 0 "U1" H 3670 3640 50  0000 C CNN
 F 1 "STM32F103C8Tx" H 3920 3560 50  0000 C CNN
 F 2 "Package_QFP:LQFP-48_7x7mm_P0.5mm" H 2770 3690 50  0001 R CNN
 F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/CD00161566.pdf" H 3370 5090 50  0001 C CNN
+F 4 "C8734 " H 3370 5090 50  0001 C CNN "LCSC"
+F 5 "LQFP48 " H 3370 5090 50  0001 C CNN "Package"
 	1    3370 5090
 	1    0    0    -1  
 $EndComp

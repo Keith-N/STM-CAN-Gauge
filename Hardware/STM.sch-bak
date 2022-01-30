@@ -633,6 +633,8 @@ F 0 "U1" H 3670 3640 50  0000 C CNN
 F 1 "STM32F103C8Tx" H 3920 3560 50  0000 C CNN
 F 2 "Package_QFP:LQFP-48_7x7mm_P0.5mm" H 2770 3690 50  0001 R CNN
 F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/CD00161566.pdf" H 3370 5090 50  0001 C CNN
+F 4 "C8734 " H 3370 5090 50  0001 C CNN "LCSC"
+F 5 "LQFP48 " H 3370 5090 50  0001 C CNN "Package"
 	1    3370 5090
 	1    0    0    -1  
 $EndComp
@@ -707,67 +709,18 @@ Wire Wire Line
 	2570 5290 2670 5290
 Wire Wire Line
 	4160 6390 3970 6390
-Text GLabel 5030 3360 0    50   Input ~ 0
-OSC_IN
-Text GLabel 5090 3940 0    50   Input ~ 0
-OSC_OUT
-$Comp
-L dk_Crystals:NX3225GD-8MHZ-STD-CRA-3 XTAL?
-U 1 1 61F67CFE
-P 5690 3770
-F 0 "XTAL?" V 5644 3873 50  0000 L CNN
-F 1 "NX3225GD-8MHZ-STD-CRA-3" V 5735 3873 50  0000 L CNN
-F 2 "digikey-footprints:SMD-2_3.2x2.5mm" H 5890 3970 60  0001 L CNN
-F 3 "http://www.ndk.com/images/products/catalog/c_NX3225GD-STD-CRA-3_e.pdf" H 5890 4070 60  0001 L CNN
-F 4 "644-1178-1-ND" H 5890 4170 60  0001 L CNN "Digi-Key_PN"
-F 5 "NX3225GD-8MHZ-STD-CRA-3" H 5890 4270 60  0001 L CNN "MPN"
-F 6 "Crystals, Oscillators, Resonators" H 5890 4370 60  0001 L CNN "Category"
-F 7 "Crystals" H 5890 4470 60  0001 L CNN "Family"
-F 8 "http://www.ndk.com/images/products/catalog/c_NX3225GD-STD-CRA-3_e.pdf" H 5890 4570 60  0001 L CNN "DK_Datasheet_Link"
-F 9 "/product-detail/en/ndk-america-inc/NX3225GD-8MHZ-STD-CRA-3/644-1178-1-ND/3125567" H 5890 4670 60  0001 L CNN "DK_Detail_Page"
-F 10 "CRYSTAL 8.0000MHZ 8PF SMD" H 5890 4770 60  0001 L CNN "Description"
-F 11 "NDK America, Inc." H 5890 4870 60  0001 L CNN "Manufacturer"
-F 12 "Active" H 5890 4970 60  0001 L CNN "Status"
-	1    5690 3770
-	0    1    1    0   
-$EndComp
-$Comp
-L Device:C C?
-U 1 1 61F6C4D1
-P 6230 3500
-F 0 "C?" H 6345 3546 50  0000 L CNN
-F 1 "0.1u" H 6345 3455 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0402_1005Metric" H 6268 3350 50  0001 C CNN
-F 3 "~" H 6230 3500 50  0001 C CNN
-F 4 "C2655418" H 6230 3500 50  0001 C CNN "LCSC"
-F 5 "0402 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS" H 6230 3500 50  0001 C CNN "Comments"
-	1    6230 3500
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:C C?
-U 1 1 61F6F7B4
-P 6610 4120
-F 0 "C?" H 6725 4166 50  0000 L CNN
-F 1 "0.1u" H 6725 4075 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0402_1005Metric" H 6648 3970 50  0001 C CNN
-F 3 "~" H 6610 4120 50  0001 C CNN
-F 4 "C2655418" H 6610 4120 50  0001 C CNN "LCSC"
-F 5 "0402 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS" H 6610 4120 50  0001 C CNN "Comments"
-	1    6610 4120
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
-	5030 3360 5680 3360
+	2660 5090 1580 5090
 Wire Wire Line
-	6230 3360 6230 3350
+	1580 5090 1580 5100
 Wire Wire Line
-	5690 3350 5680 3350
+	2670 5890 1680 5890
 Wire Wire Line
-	5680 3350 5680 3360
-Connection ~ 5680 3360
-Wire Wire Line
-	5680 3360 6230 3360
-Wire Wire Line
-	5690 3350 5690 3620
+	2670 5990 1680 5990
+Text Label 1700 5090 0    50   ~ 0
+CONFIG_3
+Text Label 1820 5890 0    50   ~ 0
+CONFIG_4
+Text Label 1820 5990 0    50   ~ 0
+CONFIG_5
 $EndSCHEMATC
