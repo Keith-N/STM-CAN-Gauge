@@ -105,8 +105,8 @@ struct rxData tps1 = 	{0,		0,		1,		1,		100,	0,		0};
 struct rxData tps2 = 	{0,		0,		1,		1,		100,	1,		0};
 
 // 3					{int	dec		A		B		max		min		val
-struct rxData map = 	{0,		0,		1,		100,	120,	0,		0};
-struct rxData mapPSI = 	{0,		0,	 	1,		100,	30,		0,		0};
+struct rxData map = 	{0,		0,		3,		100,	120,	0,		0};
+struct rxData mapPSI = 	{0,		0,	 	3,		100,	30,		0,		0};
 struct rxData clt = 	{0,		0,		1,		1,		200,	0,		0};
 struct rxData cltF = 	{0,		0,		1,		1,		300,	0,		0};
 struct rxData iat = 	{0,		0,		1,		1,		100,	0,		0};
@@ -171,6 +171,8 @@ int idleLED = 0;
 int config = 0;
 int LEDconfig = 0;
 int startDelay = 0;
+
+int tempOffset = 40;
 
 
 /* USER CODE END PV */
@@ -296,6 +298,7 @@ void getData(){
 		egoHeater = (canRX[4]) & (1<<4);
 		break;
 
+
 	case 513 :
 		rpm.val = byte2Data(1,0);		//RPM
 		timing.val = byte2Data(3,2);	//Timing deg
@@ -311,15 +314,13 @@ void getData(){
 		break;
 
 	case 515 :
-		map.val = byte2Data(1,0);		//MAP kPa
-		map.val = (map.val/.3);
-
-		clt.val = canRX[2];				//Coolant Temp C
-		iat.val = canRX[3];				//Intake Temp C
-		auxT1.val = canRX[4];			//Aux Temp 1 C
-		auxT2.val = canRX[5];			//Aux Temp 2 C
-		mcuT.val = canRX[6];			//MCU Temp C
-		fuel.val = canRX[7];			//Fuel Level %
+		map.val = byte2Data(1,0);			//MAP kPa
+		clt.val = canRX[2] - tempOffset; 	//Coolant Temp C
+		iat.val = canRX[3] - tempOffset;	//Intake Temp C
+		auxT1.val = canRX[4];				//Aux Temp 1 C
+		auxT2.val = canRX[5];				//Aux Temp 2 C
+		mcuT.val = canRX[6];				//MCU Temp C
+		fuel.val = canRX[7];				//Fuel Level %
 		break;
 
 	case 516 :
