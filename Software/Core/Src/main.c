@@ -52,11 +52,11 @@ CAN_RxHeaderTypeDef rxHeader; 			//CAN Bus receive header
 uint8_t canRX[8] = {0,0,0,0,0,0,0,0};  	//CAN Bus Receive Buffer
 CAN_FilterTypeDef canfilter; 			//CAN Bus Filter
 
-//#define startupInfo
+#define startupInfo
 #define CANtimeout
-//#define DEBUG
 #define LEDstartup
 
+//#define DEBUG
 
 // Modify as needed
 const int stoich = 14.7;
@@ -73,6 +73,7 @@ int totalNumGauge = 8;
 int canWaitTime = 2000;
 // Min/Max reset timer
 int timerMinMax = 3500;
+int startupTimer = 2000;
 
 
 // Format for data
@@ -827,7 +828,7 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
   /* USER CODE BEGIN SysInit */
-
+  HAL_Delay(startupTimer);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -839,9 +840,12 @@ int main(void)
 
 	// Initialize Display and clear
 	checkConfig();
+	for (int OLEDInit = 0; OLEDInit<5 ; OLEDInit++){
 	ssd1306_Init();
-	ssd1306_Init();
-	ssd1306_Init();
+	HAL_Delay(10);
+	};
+
+
 	printStartup();
 
 #ifdef LEDstartup
