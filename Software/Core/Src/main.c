@@ -58,19 +58,40 @@ CAN_FilterTypeDef canfilter; 			//CAN Bus Filter
 #define LEDstartup
 
 
+// Modify as needed
+const int stoich = 14.7;
+
+// CAN
+const int baseCANid = 512;
+const int tempOffset = 40;
+
+// Gauges, adjust for total and desired starting gauge
+int currentGauge = 0;
+int totalNumGauge = 8;
+
+// Time out for CAN
+int canWaitTime = 2000;
+// Min/Max reset timer
+int timerMinMax = 3500;
+
+
 // Format for data
-// intVal    - 	Integer Value
-// decVal    - 	Decimal Value
-// MultA     -  Multiplier for integer of scale, eg. use 3 for 0.03
-// MultB  	 - 	Multiplier for decimal places of scale, eg. use 100 for 0.01
+// intVal    - 	Integer Value, scaled
+// decVal    - 	Decimal Value, scaled
+// multi     -  Scaling Multiplier
+// div  	 - 	Scaling Divider
 // max		 -	Maximum value for graph/LEDs
 // min		 - 	value for graph/LEDs
 // val		 -  Received value
+// ID		 -  Selects filter ID, adder from base ID
+// dec       -  Adjust decimal scale
 
 
 struct rxData{
 	int intVal;
-	int decVal, multA, multB, max, min, val;
+	int decVal, multi, div, max, min, val;
+	int ID;
+	int dec;
 	int intMax, intMin, decMax, decMin, valMin, valMax;
 };
 
@@ -80,53 +101,53 @@ struct minMaxData{
 	int  intMax, intMin, decMax, decMin, valMin, valMax;
 };
 
-//[int] [dec] [MultiplierA] [MultiplierB] [max] [min] [val]
+//[int Val] [dec Val] [Multiplier] [Divider] [max] [min] [val] [ID] [Decimal]
 
 // 0
 int warningCount = 0;
 int lastError = 0;
-
 int revLimit = 0;
 int mainRelay = 0;
 int fuelPump = 0;
 int CEL = 0;
 int egoHeater = 0;
-int stoich = 14.7;
 
-// 1					{int	dec		A		B	 	max		min		val
-struct rxData rpm = 	{0,		0,		1,		1,		7000,	50,		0};
-struct rxData timing = 	{0,		0,	 	1,		1,		50,		-50,	0};
-struct rxData injDuty = {0,		0,		1,		1,		100,	0,		0};
-struct rxData vss = 	{0,		0,		1,		1,		1,		300,	0};
 
-// 2					{int	dec		A		B		max		min		val
-struct rxData accel = 	{0,		0,		1,		1,		100,	0,		0};
-struct rxData tps1 = 	{0,		0,		1,		1,		100,	0,		0};
-struct rxData tps2 = 	{0,		0,		1,		1,		100,	1,		0};
+// 1					{int	dec		multi	div	 	max		min		val		ID
+struct rxData rpm = 	{0,		0,		1,		1,		7000,	50,		0, 		1};
+struct rxData vss = 	{0,		0,		1,		1,		1,		300,	0,		1};
 
-// 3					{int	dec		A		B		max		min		val
-struct rxData map = 	{0,		0,		3,		100,	120,	0,		0};
-struct rxData mapPSI = 	{0,		0,	 	3,		100,	30,		0,		0};
-struct rxData clt = 	{0,		0,		1,		1,		200,	0,		0};
-struct rxData cltF = 	{0,		0,		1,		1,		300,	0,		0};
-struct rxData iat = 	{0,		0,		1,		1,		100,	0,		0};
-struct rxData iatF = 	{0,		0,		1,		1,		200,	0,		0};
-struct rxData auxT1 = 	{0,		0,		1,		1,		250,	0,		0};
-struct rxData auxT2 = 	{0,		0,		1,		1,		250,	0,		0};
-struct rxData mcuT = 	{0,		0,		1,		1,		250,	0,		0};
-struct rxData fuel = 	{0,		0,		1,		1,		100,	0,		0};
+//struct rxData timing = 	{0,		0,	 	1,		1,		50,		-50,	0,		1 };
+//struct rxData injDuty = {0,		0,		1,		1,		100,	0,		0,		1 };
+
+// 2					{int	dec		A		B		max		min		val		ID
+//struct rxData accel = {0,		0,		1,		1,		100,	0,		0,		2};
+//struct rxData tps1 = 	{0,		0,		1,		1,		100,	0,		0,		2};
+//struct rxData tps2 = 	{0,		0,		1,		1,		100,	1,		0,		2};
+
+// 3					{int	dec		A		B		max		min		val		ID
+struct rxData map = 	{0,		0,		3333,	100,	120,	0,		0,		3, 		1000};
+struct rxData mapPSI = 	{0,		0,	 	1,		1,		30,		0,		0,		3,		1000};
+struct rxData clt = 	{0,		0,		1,		1,		200,	0,		0,		3};
+struct rxData cltF = 	{0,		0,		1,		1,		300,	0,		0,		3};
+struct rxData iat = 	{0,		0,		1,		1,		100,	0,		0,		3};
+struct rxData iatF = 	{0,		0,		1,		1,		200,	0,		0,		3};
+struct rxData auxT1 = 	{0,		0,		1,		1,		250,	0,		0,		3};
+struct rxData auxT2 = 	{0,		0,		1,		1,		250,	0,		0,		3};
+//struct rxData mcuT = 	{0,		0,		1,		1,		250,	0,		0,		3};
+struct rxData fuel = 	{0,		0,		1,		1,		100,	0,		0,		3};
 
 // 4					{int	dec		A		B		max		min		val
-struct rxData afr = 	{0,		0,		1,		100,	18,		8,		0};
-struct rxData afrl = 	{0,		0,		1,		100,	2,		0,		0};
-struct rxData oilPress= {0,		0,	  	1,		10,		100,	0,		0};
-struct rxData vvtPos = 	{0,		0,		1,		1,		50,		-50,	0};
-struct rxData battery = {0,		0,		1,		1000,		0,		16,		0};
+struct rxData afr = 	{0,		0,		1,		100,	18,		8,		0,		4,		100};
+struct rxData afrl = 	{0,		0,		1,		100,	2,		0,		0,		4,		100};
+struct rxData oilPress= {0,		0,	  	1,		10,		100,	0,		0,		4};
+struct rxData vvtPos = 	{0,		0,		1,		1,		50,		-50,	0,		4};
+struct rxData battery = {0,		0,		1,		10,		15,		5,		0,		4,		100};
 
 // 5						{int	dec		A		B		max		min		val
-struct rxData cylAirMass =	{0,		0,		1,		1,		100,	0,		0};
-struct rxData estAir =		{0,		0,		1,		10,		100,	0,		0};
-struct rxData injPW = 		{0,		0,	 	1,		10,		100,	0,		0};
+struct rxData cylAirMass =	{0,		0,		1,		1,		100,	0,		0,		5};
+struct rxData estAir =		{0,		0,		1,		10,		100,	0,		0,		5};
+struct rxData injPW = 		{0,		0,	 	1,		10,		100,	0,		0,		5};
 
 struct minMaxData storedMinMax = {0, 0, 0, 0, 0, 0};
 
@@ -136,17 +157,13 @@ int lastMs = 0;
 int btnDebounce = 250;
 int btnPress = 0;
 
-// Gauges, adjust current for starting
-int currentGauge = 0;
-int totalNumGauge = 8;
-
 //Test data
 #ifdef DEBUG
 int b[] = {0,0,0,0,0,0,0};
 #endif
 
 // CAN IDs for Filters
-const int filterID[] = {(512), (513), (514), (515), (516), (517)};
+const int filterID[] = {(baseCANid), (baseCANid +1), (baseCANid +2), (baseCANid +3), (baseCANid +4), (baseCANid +5)};
 int currentFilter = 4;
 
 int rxID;
@@ -162,18 +179,13 @@ int lastTimeMax;
 int lastTimeMin;
 int lastTimeMaxP;
 int lastTimeMinP;
-int timerMinMax = 3500;
 
 int lastCanMessage = 0;
-int canWaitTime = 2000;
 
 int idleLED = 0;
 int config = 0;
 int LEDconfig = 0;
 int startDelay = 0;
-
-int tempOffset = 40;
-
 
 /* USER CODE END PV */
 
@@ -243,19 +255,28 @@ int byte2Data(int b1, int b2){
 int getIntValue(struct rxData* data){
 	 // Get the integer value
 	 // Scale Value
-	 data->intVal = data->val * data->multA/data->multB;
+	int dec = data->dec;
+	if (dec == 0){
+		dec = 1;
+	}
+
+	 data->intVal = (data->val * data->multi/data->div) / (dec);
 	 return data->intVal;
 }
 
 
 int getDecValue(struct rxData* data){
-
 	 // Get the decimal value
 	 // Subtract the int value from the total
 	 // Multiply by the inverse of the scale
 	 // Scale and multiply to get number of desired decimal places
-	 data->decVal = (data->val  - (data->intVal*data->multB));
+	if (data->dec > 2){
+	 data->decVal = (data->val*data->multi/data->div) - (data->intVal*(data->dec));
 	 return data->decVal;
+	}
+	else {
+	return 0;
+	}
 }
 
 int C2F ( int c){
@@ -301,16 +322,16 @@ void getData(){
 
 	case 513 :
 		rpm.val = byte2Data(1,0);		//RPM
-		timing.val = byte2Data(3,2);	//Timing deg
-		injDuty.val = byte2Data(5,4);	//Injector Duty %
-		injDuty.val = injDuty.val;
+		//timing.val = byte2Data(3,2);	//Timing deg
+		//injDuty.val = byte2Data(5,4);	//Injector Duty %
+		//injDuty.val = injDuty.val;
 		vss.val = canRX[6];				//Vehicle Speed kph
 		break;
 
 	case 514 :
-		accel.val = byte2Data(1,0);		//Accelerator Position
-		tps1.val = byte2Data(3,2);		//TPS 1 Position
-		tps2.val = byte2Data(5,4);		//TPS 1 Position
+		//accel.val = byte2Data(1,0);		//Accelerator Position
+		//tps1.val = byte2Data(3,2);		//TPS 1 Position
+		//tps2.val = byte2Data(5,4);		//TPS 1 Position
 		break;
 
 	case 515 :
@@ -319,7 +340,7 @@ void getData(){
 		iat.val = canRX[3] - tempOffset;	//Intake Temp C
 		auxT1.val = canRX[4];				//Aux Temp 1 C
 		auxT2.val = canRX[5];				//Aux Temp 2 C
-		mcuT.val = canRX[6];				//MCU Temp C
+		//mcuT.val = canRX[6];				//MCU Temp C
 		fuel.val = canRX[7];				//Fuel Level %
 		break;
 
@@ -356,16 +377,16 @@ void printText( char* text, int X, int Y){
 void printTextLarge( char* text, int X, int Y){
 	// Set cursor and print 16x26 text
 	ssd1306_SetCursor(X, Y);
-	ssd1306_WriteString(text, Font_11x18, White);
+	ssd1306_WriteString(text, Font_16x26, White);
 
 }
 
-void printTextSmall( char* text, int X, int Y){
-	// Set cursor and print 7x10 text
-	ssd1306_SetCursor(X, Y);
-	ssd1306_WriteString(text, Font_7x10, White);
-
-}
+//void printTextSmall( char* text, int X, int Y){
+//	// Set cursor and print 7x10 text
+//	ssd1306_SetCursor(X, Y);
+//	ssd1306_WriteString(text, Font_7x10, White);
+//
+//}
 
 void printDataDigitalLarge(struct rxData * data, int X, int Y){
 	// Set cursor x/y location and print the selected data
@@ -373,7 +394,13 @@ void printDataDigitalLarge(struct rxData * data, int X, int Y){
 	// This will print the maximum stored value
 	ssd1306_SetCursor(X, Y);
 	if (data->decVal > 0){
-		snprintf(buff, sizeof(buff), "%d.%d", data->intVal,data->decVal);
+		if (data->decVal<100){
+		snprintf(buff, sizeof(buff), "%d.0%d", data->intVal, data->decVal);
+		}
+		else{
+		snprintf(buff, sizeof(buff), "%d.%d", data->intVal, data->decVal);
+		}
+
 		ssd1306_WriteString(buff, Font_16x26, White);
 	}
 
@@ -393,7 +420,6 @@ void printDataDigital(struct rxData * data, int X, int Y){
 		snprintf(buff, sizeof(buff), "%d.%d", data->intVal,data->decVal);
 		ssd1306_WriteString(buff, Font_11x18, White);
 	}
-
 	else {
 		snprintf(buff, sizeof(buff), "%d", data->intVal);
 		ssd1306_WriteString(buff, Font_11x18, White);
@@ -401,62 +427,62 @@ void printDataDigital(struct rxData * data, int X, int Y){
 
 }
 
-void printDataDigitalSmall(struct rxData * data, int X, int Y){
-	// Set cursor x/y location and print the selected data
-	// If decimal value is 0 it will not be printed
-	// This will print the current stored value
-	ssd1306_SetCursor(X, Y);
-	if (data->decVal > 0){
-		snprintf(buff, sizeof(buff), "%d.%d", data->intVal,data->decVal);
-		ssd1306_WriteString(buff, Font_7x10, White);
-	}
+//void printDataDigitalSmall(struct rxData * data, int X, int Y){
+//	// Set cursor x/y location and print the selected data
+//	// If decimal value is 0 it will not be printed
+//	// This will print the current stored value
+//	ssd1306_SetCursor(X, Y);
+//	if (data->decVal > 0){
+//		snprintf(buff, sizeof(buff), "%d.%d", data->intVal,data->decVal);
+//		ssd1306_WriteString(buff, Font_7x10, White);
+//	}
+//
+//	else {
+//		snprintf(buff, sizeof(buff), "%d", data->intVal);
+//		ssd1306_WriteString(buff, Font_7x10, White);
+//	}
+//
+//}
 
-	else {
-		snprintf(buff, sizeof(buff), "%d", data->intVal);
-		ssd1306_WriteString(buff, Font_7x10, White);
-	}
+//void printDataMin(struct rxData * data, int X, int Y){
+//	// Set cursor x/y location and print the selected data
+//	// If decimal value is 0 it will not be printed
+//	// This will print the minimum stored value
+//	ssd1306_SetCursor(X, Y);
+//	if (data->decMin > 0){
+//		snprintf(buff, sizeof(buff), "%d.%d", data->intMin,data->decMin);
+//		ssd1306_WriteString(buff, Font_7x10, White);
+//	}
+//
+//	else {
+//		snprintf(buff, sizeof(buff), "%d", data->intMin);
+//		ssd1306_WriteString(buff, Font_7x10, White);
+//	}
+//
+//}
 
-}
+//void printDataMax(struct rxData * data, int X, int Y){
+//	// Set cursor x/y location and print the selected data
+//	// If decimal value is 0 it will not be printed
+//	// This will print the maximum stored value
+//	ssd1306_SetCursor(X, Y);
+//	if (data->decMax > 0){
+//		snprintf(buff, sizeof(buff), "%d.%d", data->intMax,data->decMax);
+//		ssd1306_WriteString(buff, Font_7x10, White);
+//	}
+//
+//	else {
+//		snprintf(buff, sizeof(buff), "%d", data->intMax);
+//		ssd1306_WriteString(buff, Font_7x10, White);
+//	}
+//
+//}
 
-void printDataMin(struct rxData * data, int X, int Y){
-	// Set cursor x/y location and print the selected data
-	// If decimal value is 0 it will not be printed
-	// This will print the minimum stored value
-	ssd1306_SetCursor(X, Y);
-	if (data->decMin > 0){
-		snprintf(buff, sizeof(buff), "%d.%d", data->intMin,data->decMin);
-		ssd1306_WriteString(buff, Font_7x10, White);
-	}
-
-	else {
-		snprintf(buff, sizeof(buff), "%d", data->intMin);
-		ssd1306_WriteString(buff, Font_7x10, White);
-	}
-
-}
-
-void printDataMax(struct rxData * data, int X, int Y){
-	// Set cursor x/y location and print the selected data
-	// If decimal value is 0 it will not be printed
-	// This will print the maximum stored value
-	ssd1306_SetCursor(X, Y);
-	if (data->decMax > 0){
-		snprintf(buff, sizeof(buff), "%d.%d", data->intMax,data->decMax);
-		ssd1306_WriteString(buff, Font_7x10, White);
-	}
-
-	else {
-		snprintf(buff, sizeof(buff), "%d", data->intMax);
-		ssd1306_WriteString(buff, Font_7x10, White);
-	}
-
-}
-
-void printValueSmall(int data, int X, int Y){
-	ssd1306_SetCursor(X, Y);
-	snprintf(buff, sizeof(buff), "%d", data);
-			ssd1306_WriteString(buff, Font_7x10, White);
-}
+//void printValueSmall(int data, int X, int Y){
+//	ssd1306_SetCursor(X, Y);
+//	snprintf(buff, sizeof(buff), "%d", data);
+//			ssd1306_WriteString(buff, Font_7x10, White);
+//}
 
 void printValue(int data, int X, int Y){
 	ssd1306_SetCursor(X, Y);
@@ -521,8 +547,8 @@ int getPercent(struct rxData *data){
 	// This returns a percentage of the current value vs the set limits for the data
 
 	// Offset current and max values by min, then divide by the max to get the percentage
-	int p = ((data->val-(data->min*data->multB/data->multA))*100);
-	p = p / ((data->max - data->min)*data->multB/data->multA);
+	int p = ((data->val-(data->min*data->div/data->multi))*100);
+	p = p / ((data->max - data->min)*data->div/data->multi);
 
 	// Limit percentage to 0 -> 100
 	if (p > 100){
@@ -549,18 +575,17 @@ void getMinMax(struct rxData *data){
 	 // Update min/max if current value is exceeded
 	if (data->val < data->valMin){
 		data->valMin = data->val;
-		data->intMin = data->val * data->multA/data->multB;
-		data->decMin = ((data->val  - (data->intVal*data->multB/data->multA)) * data->multB/data->multA);
+		data->intMin = data->val * data->multi/data->div;
+		data->decMin = ((data->val  - (data->intVal*data->div/data->multi)) * data->div/data->multi);
 	}
 
 	// Update min/max if current value is exceeded
 	if (data->val > data->valMax){
 		data->valMax = data->val;
-		data->intMin = data->val * data->multA/data->multB;
-		data->decMin = ((data->val  - (data->intVal*data->multB/data->multA)) * data->multB/data->multA);
+		data->intMin = data->val * data->multi/data->div;
+		data->decMin = ((data->val  - (data->intVal*data->div/data->multi)) * data->div/data->multi);
 	}
 }
-
 
 void printStartup(){
 
@@ -584,7 +609,6 @@ void printStartup(){
 
 }
 }
-
 
 void LEDprogress(int l){
 
@@ -712,34 +736,20 @@ void getPercentMinMax(int p, int *min, int *max){
 		}
 }
 
-
 void printGauge(char *t, struct rxData *data2){
 //
+	currentFilter = data2->ID;
 	getIntValue(data2);
 	getDecValue(data2);
 	p = getPercent(data2);
-//
-//	// Print Text Only
-//	if (config==0){
 	printText(t,5,2);
 	printDataDigitalLarge(data2,5,30);
 	ssd1306_UpdateScreen();
-//	}
-//
-//	// Print Text and Bar
-//	else{
-//	getPercentMinMax(p,&pMin,&pMax);
-//	printBarGraph(5,0,10,120,p,2);
-//	printBarMinMax(5,0,20,120,pMin,pMax);
-//	printTextSmall(t,2,45);
-//	printDataMin(data2,2,25);
-//	printDataMax(&afr,2,35);
-//	printDataDigitalLarge(data2,40,30);
-//	ssd1306_UpdateScreen();
-//	}
-//
-	p = p /10;
+
+
+
 	// Set LEDs
+	p = p /10;
 	if (LEDconfig == 1){
 		LEDsingle(p);
 	}
@@ -761,33 +771,29 @@ void updateGauge(int gaugePrint){
 	switch (gaugePrint){
 
 	case 0 : // AFR
-		currentFilter = 4;
 		printGauge("AFR",&afr);
 		break;
 
-
-	case 2 : // Intake Temp C
-		currentFilter = 3;
+	case 1 : // Intake Temp C
 		printGauge("IAT C",&iat);
 		break;
 
-
-	case 4 : // clt C
-		currentFilter = 3;
+	case 2 : // clt C
 		printGauge("CLT C",&clt);
 		break;
 
-
-	case 6 : // map kpa
-		currentFilter = 3;
+	case 3 : // map kpa
 		printGauge("MAP kPa",&map);
 		break;
 
+	case 4 : //Battery
+		printGauge("Voltage",&battery);
+		break;
 
-	case 8 : //RPM
-		currentFilter = 1;
+	case 5 : //RPM
 		printGauge("RPM",&rpm);
 		break;
+
 
 	default : // If no gauge is available move to next
 
@@ -812,7 +818,8 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+
+	HAL_Init();
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
@@ -830,9 +837,7 @@ int main(void)
   HAL_Delay(startDelay);
   /* USER CODE BEGIN 2 */
 
-
 	// Initialize Display and clear
-
 	checkConfig();
 	ssd1306_Init();
 	ssd1306_Init();
@@ -841,7 +846,7 @@ int main(void)
 
 #ifdef LEDstartup
 	int cycle = 0;
-	while (cycle  < 10){
+	while (cycle  < 11){
 	LEDsingle(cycle);
 	cycle ++;
 	HAL_Delay(50);
@@ -849,7 +854,7 @@ int main(void)
 	HAL_Delay(100);
 	LEDprogress(0);
 	HAL_Delay(100);
-	LEDprogress(9);
+	LEDprogress(10);
 	HAL_Delay(500);
 	LEDprogress(0);
 #endif
@@ -876,9 +881,9 @@ HAL_CAN_ActivateNotification(&hcan,CAN_IT_RX_FIFO0_MSG_PENDING);
 #ifdef CANtimeout
 	 if (lastCanMessage > 0 && ((HAL_GetTick() - lastCanMessage) > canWaitTime)){
 		 	ssd1306_Fill(Black);
-		 	printTextLarge("Lost",5,5);
-		 	printTextLarge("Data",5,20);
-		 	printTextLarge("Connection",5,35);
+		 	printText("Lost",5,5);
+		 	printText("Data",5,20);
+		 	printText("Connection",5,35);
 		 	ssd1306_UpdateScreen();
 		 	LEDsingle(999);
 	 }
