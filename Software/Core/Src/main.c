@@ -56,6 +56,8 @@ CAN_FilterTypeDef canfilter; 			//CAN Bus Filter
 #define CANtimeout
 #define LEDstartup
 
+int buildDate = 220205;
+
 //#define DEBUG
 
 // Modify as needed
@@ -73,8 +75,9 @@ int totalNumGauge = 8;
 int canWaitTime = 2000;
 // Min/Max reset timer
 int timerMinMax = 3500;
-int startupTimer = 2000;
 
+int startupTimer = 100;
+int OLEDreinit = 10;
 
 // Format for data
 // intVal    - 	Integer Value, scaled
@@ -185,7 +188,6 @@ int lastCanMessage = 0;
 
 int idleLED = 0;
 int config = 0;
-int LEDconfig = 0;
 int startDelay = 0;
 
 /* USER CODE END PV */
@@ -213,14 +215,14 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan1){
 void checkConfig(){
 
 	if (HAL_GPIO_ReadPin(GPIOB, config1_Pin) == 0){
-		LEDconfig = 1;
+		config++;
 	}
 	if (HAL_GPIO_ReadPin(GPIOB, config2_Pin) == 0){
-		config = 1;
+		config++;
+		config++;
 
 	}
 }
-
 
 void EXTI4_15_IRQHandler(){
 	// Push button interrupt
@@ -264,7 +266,6 @@ int getIntValue(struct rxData* data){
 	 data->intVal = (data->val * data->multi/data->div) / (dec);
 	 return data->intVal;
 }
-
 
 int getDecValue(struct rxData* data){
 	 // Get the decimal value
@@ -590,26 +591,24 @@ void getMinMax(struct rxData *data){
 
 void printStartup(){
 
-//#ifdef startupInfo
-	if (config == 0){
+#ifdef startupInfo
 	ssd1306_Fill(Black);
-	printText("CAN 500k",5,05);
-	printText("Base ID 512 ",5,25);
-	printText("Config ",5,45);
-	printValue(config, 80, 45);
-	printValue(LEDconfig, 95, 45);
+	printValue(buildDate,5,05);
+	printValue(config,100,05);
+	printText("CAN 500k",5,25);
+	printText("ID 512",5,45);
 	ssd1306_UpdateScreen();
-	}
-//#else
-	else{
+
+#else
+
 	ssd1306_Fill(Black);
 	printText("Waiting",5,05);
 	ssd1306_UpdateScreen();
 
-//#endif
+#endif
 
 }
-}
+
 
 void LEDprogress(int l){
 
@@ -748,10 +747,9 @@ void printGauge(char *t, struct rxData *data2){
 	ssd1306_UpdateScreen();
 
 
-
 	// Set LEDs
 	p = p /10;
-	if (LEDconfig == 1){
+	if (config == 1 || config == 3){
 		LEDsingle(p);
 	}
 	else {
@@ -759,7 +757,6 @@ void printGauge(char *t, struct rxData *data2){
 	}
 //
 }
-
 
 void updateGauge(int gaugePrint){
 
@@ -840,11 +837,11 @@ int main(void)
 
 	// Initialize Display and clear
 	checkConfig();
-	for (int OLEDInit = 0; OLEDInit<5 ; OLEDInit++){
+
+	for (int OLEDInit = 0; OLEDInit<OLEDreinit ; OLEDInit++){
 	ssd1306_Init();
 	HAL_Delay(10);
 	};
-
 
 	printStartup();
 
