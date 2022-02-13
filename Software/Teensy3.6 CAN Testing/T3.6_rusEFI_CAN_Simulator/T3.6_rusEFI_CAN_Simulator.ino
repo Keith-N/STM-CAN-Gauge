@@ -16,7 +16,7 @@ int canID4 = canID + 4;
 int canID5 = canID + 5;
 int canID6 = canID + 6;
 
-float afr = 0;
+float afr = 12.34;
 int rpm = 0;
 float ignTiming =  0;
 float injDuty = 0;
@@ -24,9 +24,9 @@ int vss = 0;
 int accel = 0;
 int tps1 = 0;
 int tps2 = 0;
-int map1 = 0;
-float clt = 0;
-float iat = 0;
+int map1 = 123;
+float clt = 56.78;
+float iat = 45.67;
 int auxT1 =0;
 int auxT2 =0;
 int mcuT = 0;
@@ -37,6 +37,8 @@ int airMass = 0;
 int estAir = 0;
 int injPW =0;
 int fuel = 0;
+
+int tempOffset = 40;
 
 int warningCount = 0;
 int lastError = 0;
@@ -139,8 +141,8 @@ void messageSetup(){
   msg3.buf[0] = (byte) (map1Int & 0xFF);
   msg3.buf[1] = (byte) ((map1Int >> 8) & 0xFF);
   
-  msg3.buf[2] = clt;
-  msg3.buf[3] = iat;
+  msg3.buf[2] = clt + tempOffset;
+  msg3.buf[3] = iat + tempOffset;
   msg3.buf[4] = auxT1;
   msg3.buf[5] = auxT2;
   msg3.buf[6] = mcuT;
@@ -357,7 +359,7 @@ void loop(void)
   
 
   
-  incrementData();
+  //incrementData();
   messageSetup();
   
   msg.buf[0]++;

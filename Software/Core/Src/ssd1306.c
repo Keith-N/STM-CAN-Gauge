@@ -317,6 +317,7 @@ void ssd1306_Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR 
   }
   return;
 }
+
 //Draw polyline
 void ssd1306_Polyline(const SSD1306_VERTEX *par_vertex, uint16_t par_size, SSD1306_COLOR color) {
   uint16_t i;
@@ -331,10 +332,12 @@ void ssd1306_Polyline(const SSD1306_VERTEX *par_vertex, uint16_t par_size, SSD13
   }
   return;
 }
+
 /*Convert Degrees to Radians*/
 static float ssd1306_DegToRad(float par_deg) {
     return par_deg * 3.14 / 180.0;
 }
+
 /*Normalize degree to [0;360]*/
 static uint16_t ssd1306_NormalizeTo0_360(uint16_t par_deg) {
   uint16_t loc_angle;
@@ -349,6 +352,7 @@ static uint16_t ssd1306_NormalizeTo0_360(uint16_t par_deg) {
   }
   return loc_angle;
 }
+
 /*DrawArc. Draw angle is beginning from 4 quart of trigonometric circle (3pi/2)
  * start_angle in degree
  * sweep in degree
@@ -389,6 +393,7 @@ void ssd1306_DrawArc(uint8_t x, uint8_t y, uint8_t radius, uint16_t start_angle,
     
     return;
 }
+
 //Draw circle by Bresenhem's algorithm
 void ssd1306_DrawCircle(uint8_t par_x,uint8_t par_y,uint8_t par_r,SSD1306_COLOR par_color) {
   int32_t x = -par_r;
