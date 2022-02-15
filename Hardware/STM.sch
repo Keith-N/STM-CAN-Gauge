@@ -4,9 +4,9 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 2 6
-Title "CAN Gauge"
+Title "CAN Gauge F103"
 Date "2021-10-10"
-Rev "C"
+Rev "A"
 Comp ""
 Comment1 ""
 Comment2 ""
@@ -625,19 +625,6 @@ F 3 "~" H 2240 1100 50  0001 C CNN
 	1    2240 1100
 	0    1    1    0   
 $EndComp
-$Comp
-L MCU_ST_STM32F1:STM32F103C8Tx U1
-U 1 1 61EF6A0E
-P 3370 5090
-F 0 "U1" H 3670 3640 50  0000 C CNN
-F 1 "STM32F103C8Tx" H 3920 3560 50  0000 C CNN
-F 2 "Package_QFP:LQFP-48_7x7mm_P0.5mm" H 2770 3690 50  0001 R CNN
-F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/CD00161566.pdf" H 3370 5090 50  0001 C CNN
-F 4 "C8734 " H 3370 5090 50  0001 C CNN "LCSC"
-F 5 "LQFP48 " H 3370 5090 50  0001 C CNN "Package"
-	1    3370 5090
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	3970 5790 4250 5790
 Wire Wire Line
@@ -696,33 +683,25 @@ F 3 "" H 3520 6740 50  0001 C CNN
 $EndComp
 Connection ~ 3470 6740
 Wire Wire Line
-	2670 4590 2210 4590
-Wire Wire Line
-	2670 4690 2200 4690
-Text GLabel 2210 4590 0    50   Input ~ 0
-OSC_IN
-Text GLabel 2200 4690 0    50   Input ~ 0
-OSC_OUT
-Wire Wire Line
 	2570 5190 2670 5190
 Wire Wire Line
 	2570 5290 2670 5290
 Wire Wire Line
 	4160 6390 3970 6390
 Wire Wire Line
-	1580 5090 1580 5100
+	1580 6190 1580 6200
 Wire Wire Line
-	2670 5890 1680 5890
+	2670 6290 1680 6290
 Wire Wire Line
-	2670 5990 1680 5990
-Text Label 1700 5090 0    50   ~ 0
+	2670 6390 1680 6390
+Text Label 1700 6190 0    50   ~ 0
 CONFIG_3
-Text Label 1820 5890 0    50   ~ 0
+Text Label 1820 6290 0    50   ~ 0
 CONFIG_4
-Text Label 1820 5990 0    50   ~ 0
+Text Label 1820 6390 0    50   ~ 0
 CONFIG_5
 Wire Wire Line
-	1580 5090 2670 5090
+	1580 6190 2670 6190
 $Comp
 L Device:C C6
 U 1 1 6203C81B
@@ -752,10 +731,160 @@ Wire Wire Line
 Wire Wire Line
 	2140 3790 2140 3070
 Wire Wire Line
-	2140 3070 2420 3070
-Wire Wire Line
 	2420 3070 2420 3080
 Connection ~ 2140 3790
 Wire Wire Line
 	2140 3790 2070 3790
+Text Label 3500 820  0    50   ~ 0
+CONFIG_3
+Wire Wire Line
+	3500 820  3500 950 
+Wire Wire Line
+	3500 1250 3500 1330
+$Comp
+L power:GND #PWR0158
+U 1 1 620B457B
+P 3500 1330
+F 0 "#PWR0158" H 3500 1080 50  0001 C CNN
+F 1 "GND" H 3505 1157 50  0000 C CNN
+F 2 "" H 3500 1330 50  0001 C CNN
+F 3 "" H 3500 1330 50  0001 C CNN
+	1    3500 1330
+	1    0    0    -1  
+$EndComp
+$Comp
+L Jumper:SolderJumper_2_Open JP?
+U 1 1 620B4581
+P 3500 1100
+AR Path="/615E795E/620B4581" Ref="JP?"  Part="1" 
+AR Path="/615E5281/620B4581" Ref="JP4"  Part="1" 
+AR Path="/615E8210/620B4581" Ref="JP?"  Part="1" 
+F 0 "JP4" V 3454 1168 50  0000 L CNN
+F 1 "SolderJumper_2_Open" V 3545 1168 50  0000 L CNN
+F 2 "Jumper:SolderJumper-2_P1.3mm_Open_Pad1.0x1.5mm" H 3500 1100 50  0001 C CNN
+F 3 "~" H 3500 1100 50  0001 C CNN
+	1    3500 1100
+	0    1    1    0   
+$EndComp
+Text Label 4610 820  0    50   ~ 0
+CONFIG_4
+Wire Wire Line
+	4610 820  4610 950 
+Wire Wire Line
+	4610 1250 4610 1330
+$Comp
+L power:GND #PWR0168
+U 1 1 620B7EB6
+P 4610 1330
+F 0 "#PWR0168" H 4610 1080 50  0001 C CNN
+F 1 "GND" H 4615 1157 50  0000 C CNN
+F 2 "" H 4610 1330 50  0001 C CNN
+F 3 "" H 4610 1330 50  0001 C CNN
+	1    4610 1330
+	1    0    0    -1  
+$EndComp
+$Comp
+L Jumper:SolderJumper_2_Open JP?
+U 1 1 620B7EBC
+P 4610 1100
+AR Path="/615E795E/620B7EBC" Ref="JP?"  Part="1" 
+AR Path="/615E5281/620B7EBC" Ref="JP5"  Part="1" 
+AR Path="/615E8210/620B7EBC" Ref="JP?"  Part="1" 
+F 0 "JP5" V 4564 1168 50  0000 L CNN
+F 1 "SolderJumper_2_Open" V 4655 1168 50  0000 L CNN
+F 2 "Jumper:SolderJumper-2_P1.3mm_Open_Pad1.0x1.5mm" H 4610 1100 50  0001 C CNN
+F 3 "~" H 4610 1100 50  0001 C CNN
+	1    4610 1100
+	0    1    1    0   
+$EndComp
+Text Label 5810 840  0    50   ~ 0
+CONFIG_5
+Wire Wire Line
+	5810 840  5810 970 
+Wire Wire Line
+	5810 1270 5810 1350
+$Comp
+L power:GND #PWR0169
+U 1 1 620BB988
+P 5810 1350
+F 0 "#PWR0169" H 5810 1100 50  0001 C CNN
+F 1 "GND" H 5815 1177 50  0000 C CNN
+F 2 "" H 5810 1350 50  0001 C CNN
+F 3 "" H 5810 1350 50  0001 C CNN
+	1    5810 1350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Jumper:SolderJumper_2_Open JP?
+U 1 1 620BB98E
+P 5810 1120
+AR Path="/615E795E/620BB98E" Ref="JP?"  Part="1" 
+AR Path="/615E5281/620BB98E" Ref="JP6"  Part="1" 
+AR Path="/615E8210/620BB98E" Ref="JP?"  Part="1" 
+F 0 "JP6" V 5764 1188 50  0000 L CNN
+F 1 "SolderJumper_2_Open" V 5855 1188 50  0000 L CNN
+F 2 "Jumper:SolderJumper-2_P1.3mm_Open_Pad1.0x1.5mm" H 5810 1120 50  0001 C CNN
+F 3 "~" H 5810 1120 50  0001 C CNN
+	1    5810 1120
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:C C12
+U 1 1 6211116B
+P 1710 3230
+F 0 "C12" H 1825 3276 50  0000 L CNN
+F 1 "0.1u" H 1825 3185 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0402_1005Metric" H 1748 3080 50  0001 C CNN
+F 3 "~" H 1710 3230 50  0001 C CNN
+F 4 "C2655418" H 1710 3230 50  0001 C CNN "LCSC"
+F 5 "0402 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS" H 1710 3230 50  0001 C CNN "Comments"
+	1    1710 3230
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1710 3080 1710 3070
+Wire Wire Line
+	1710 3070 2140 3070
+Connection ~ 2140 3070
+Wire Wire Line
+	2140 3070 2420 3070
+$Comp
+L power:GND #PWR0170
+U 1 1 62118F19
+P 1710 3430
+F 0 "#PWR0170" H 1710 3180 50  0001 C CNN
+F 1 "GND" H 1715 3257 50  0000 C CNN
+F 2 "" H 1710 3430 50  0001 C CNN
+F 3 "" H 1710 3430 50  0001 C CNN
+	1    1710 3430
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1710 3430 1710 3380
+$Comp
+L MCU_ST_STM32F1:STM32F103C8Tx U1
+U 1 1 61EF6A0E
+P 3370 5090
+F 0 "U1" H 3670 3640 50  0000 C CNN
+F 1 "STM32F103C8Tx" H 3920 3560 50  0000 C CNN
+F 2 "Package_QFP:LQFP-48_7x7mm_P0.5mm" H 2770 3690 50  0001 R CNN
+F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/CD00161566.pdf" H 3370 5090 50  0001 C CNN
+F 4 "C8734 " H 3370 5090 50  0001 C CNN "LCSC"
+F 5 "LQFP48 " H 3370 5090 50  0001 C CNN "Package"
+	1    3370 5090
+	1    0    0    -1  
+$EndComp
+NoConn ~ 2670 5690
+NoConn ~ 2670 5790
+NoConn ~ 2670 5890
+NoConn ~ 2670 5990
+NoConn ~ 2670 6090
+NoConn ~ 3970 5890
+NoConn ~ 2670 4290
+NoConn ~ 2670 4190
+NoConn ~ 2670 4490
+NoConn ~ 2670 4590
+NoConn ~ 2670 4690
+NoConn ~ 2670 5390
+NoConn ~ 2670 5090
 $EndSCHEMATC
