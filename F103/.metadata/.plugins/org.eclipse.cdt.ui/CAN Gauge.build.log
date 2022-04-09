@@ -1,0 +1,10 @@
+20:50:03 **** Incremental Build of configuration Debug for project CAN Gauge ****
+make -j24 all 
+arm-none-eabi-size   CAN\ Gauge.elf 
+   text	   data	    bss	    dec	    hex	filename
+  29916	    804	   2916	  33636	   8364	CAN Gauge.elf
+Finished building: default.size.stdout
+ 
+
+20:50:03 Build Finished. 0 errors, 0 warnings. (took 183ms)
+

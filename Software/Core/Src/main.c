@@ -64,7 +64,7 @@ CAN_FilterTypeDef canfilter; 			//CAN Bus Filter
 /* Configuration Variables -------------------------------------------------------------*/
 
 //Displays on startup screen
-int buildDate = 220213;
+int buildDate = 220409;
 
 // CAN
 const int baseCANid = 512;
@@ -122,7 +122,8 @@ int egoHeater = 0;
 
 // 1					{multi	div	 	max		min		ID	  dec}
 struct rxData rpm = 	{1,		1,		7000,	50,		1,		0};
-struct rxData vss = 	{1,		1,		1,		300,	1,		0};
+struct rxData vss = 	{1,		1,		1,		180,	1,		0};
+struct rxData mph = 	{60,	100,	1,		180,	1,		0};
 struct rxData timing =  {1,		1,		50,		-50,	1,		0};
 struct rxData injDuty = {1,		1,		100,	0,		1,		0};
 
@@ -257,6 +258,7 @@ void getData(){
 		injDuty.val = byte2Data(5,4);	//Injector Duty %
 		injDuty.val = injDuty.val;
 		vss.val = canRX[6];				//Vehicle Speed kph
+		mph.val = vss.val;
 		break;
 
 	case 514 :
@@ -544,6 +546,14 @@ void updateGauge(int gaugePrint){
 
 	case 5 : //RPM
 		printGauge("RPM",&rpm);
+		break;
+
+	case 6 : //MPH
+		printGauge("Speed MPH",&mph);
+		break;
+
+	case 7 : //MPH
+		printGauge("Speed KPH",&vss);
 		break;
 
 
