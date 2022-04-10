@@ -123,7 +123,7 @@ int egoHeater = 0;
 // 1					{multi	div	 	max		min		ID	  dec}
 struct rxData rpm = 	{1,		1,		7000,	50,		1,		0};
 struct rxData vss = 	{1,		1,		1,		180,	1,		0};
-struct rxData mph = 	{60,	100,	1,		180,	1,		0};
+struct rxData mph = 	{62,	100,	1,		180,	1,		0};
 struct rxData timing =  {1,		1,		50,		-50,	1,		0};
 struct rxData injDuty = {1,		1,		100,	0,		1,		0};
 
